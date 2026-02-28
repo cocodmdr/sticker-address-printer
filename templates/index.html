@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head><title>Address Sticker Printer</title></head>
+  <body>
+    <h1>Address Sticker Printer</h1>
+    <form action="/generate" method="post" enctype="multipart/form-data">
+      <label>Avery template
+        <select name="template">
+          <option value="L7160">L7160 (3x7)</option>
+        </select>
+      </label><br/>
+      <label>Top margin (mm) <input name="top_margin" value="0"/></label><br/>
+      <label>Right margin (mm) <input name="right_margin" value="0"/></label><br/>
+      <label>Bottom margin (mm) <input name="bottom_margin" value="0"/></label><br/>
+      <label>Left margin (mm) <input name="left_margin" value="0"/></label><br/>
+      <label>CSV file <input type="file" name="csv_file"/></label><br/>
+      <button type="submit">Generate PDF</button>
+    </form>
+  </body>
+</html>
