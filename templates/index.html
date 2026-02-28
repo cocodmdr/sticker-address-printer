@@ -5,15 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Address Sticker Printer</title>
     <link rel="stylesheet" href="/static/styles.css"/>
-    {% if ga_measurement_id %}
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);} 
-      gtag('js', new Date());
-      gtag('config', '{{ ga_measurement_id }}');
-    </script>
-    {% endif %}
+    
   </head>
   <body>
     <div class="container">
@@ -119,6 +111,66 @@
         document.body.classList.toggle('dark');
         localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
       });
+
+      {% if ga_measurement_id %}
+      function initAnalytics(){
+        if(window.__gaLoaded) return;
+        window.__gaLoaded = true;
+        const s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}';
+        document.head.appendChild(s);
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);} 
+        window.gtag = gtag;
+        gtag('js', new Date());
+        gtag('config', '{{ ga_measurement_id }}');
+      }
+
+      (function(){
+        const key='cookie_consent_v1';
+        const choice=localStorage.getItem(key);
+        const banner=document.getElementById('cookie-banner');
+        const accept=document.getElementById('cookie-accept');
+        const reject=document.getElementById('cookie-reject');
+
+        if(choice==='accepted'){
+          initAnalytics();
+        } else if(choice!=='rejected' && banner){
+          banner.classList.add('show');
+        }
+
+        if(accept){
+          accept.addEventListener('click', ()=>{
+            localStorage.setItem(key,'accepted');
+            banner && banner.classList.remove('show');
+            initAnalytics();
+          });
+        }
+        if(reject){
+          reject.addEventListener('click', ()=>{
+            localStorage.setItem(key,'rejected');
+            banner && banner.classList.remove('show');
+          });
+        }
+      })();
+      {% endif %}
     </script>
+
+    {% if ga_measurement_id %}
+    <div id="cookie-banner" class="cookie-banner" role="dialog" aria-live="polite" aria-label="Cookie consent">
+      <div class="cookie-row">
+        <div class="cookie-text">
+          We use analytics cookies (Google Analytics) to understand traffic and improve this site.
+          You can accept or reject analytics cookies.
+        </div>
+        <div class="cookie-actions">
+          <button id="cookie-reject" class="btn secondary" type="button">Reject</button>
+          <button id="cookie-accept" class="btn" type="button">Accept</button>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
   </body>
 </html>

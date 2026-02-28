@@ -111,3 +111,15 @@ body.dark a{color:#93c5fd;}
 
 body.dark .hero h1{color:#ffffff;text-shadow:0 1px 0 rgba(0,0,0,.25);}
 body.dark .section-title{color:#f8fafc;}
+
+
+.cookie-banner{
+  position:fixed;left:50%;bottom:16px;transform:translateX(-50%);
+  width:min(920px,94%);background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:.9rem 1rem;box-shadow:0 12px 30px rgba(0,0,0,.18);z-index:1000;
+  display:none;
+}
+.cookie-banner.show{display:block;}
+.cookie-row{display:flex;gap:.8rem;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+.cookie-text{color:var(--muted);font-size:.92rem;max-width:680px;}
+.cookie-actions{display:flex;gap:.5rem;}

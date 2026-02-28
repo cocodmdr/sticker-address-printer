@@ -54,3 +54,10 @@ Set environment variable `GA_MEASUREMENT_ID` (example: `G-XXXXXXXXXX`).
 When set, the homepage injects gtag.js.
 
 On Render: Service -> Environment -> add `GA_MEASUREMENT_ID` and redeploy.
+
+
+### GDPR-friendly analytics consent
+When `GA_MEASUREMENT_ID` is set, a cookie-consent banner is shown.
+- **Accept**: loads Google Analytics (gtag)
+- **Reject**: GA is not loaded
+Consent choice is stored in `localStorage` key `cookie_consent_v1`.
