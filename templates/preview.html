@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Preview - Address Sticker Printer</title>
+    <title>{{ tr('preview_title') }} - Address Sticker Printer</title>
     <link rel="stylesheet" href="/static/styles.css"/>
   </head>
   <body>
     <div class="container">
       <section class="form-panel" style="margin-top:2rem;">
-        <h1 style="margin-top:0;">Preview</h1>
-        <p class="help-text">Showing {{ preview_rows|length }} label(s). Template: <strong>{{ template }}</strong></p>
+        <h1 style="margin-top:0;">{{ tr('preview_title') }}</h1>
+        <p class="help-text">{{ tf('showing_labels', count=preview_rows|length) }} <strong>{{ template }}</strong></p>
 
         <ul class="preview-list">
           {% for r in preview_rows %}
@@ -38,8 +38,8 @@
           <input type="hidden" name="custom_origin_y_mm" value="{{ template_spec.origin_y_mm }}"/>
           {% endif %}
           <div class="actions">
-            <button class="btn" type="submit">Generate PDF</button>
-            <a class="btn secondary" href="/">Back</a>
+            <button class="btn" type="submit">{{ tr('generate_pdf') }}</button>
+            <a class="btn secondary" href="/?lang={{ lang }}">{{ tr('back') }}</a>
           </div>
         </form>
       </section>

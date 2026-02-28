@@ -35,6 +35,13 @@ TRANSLATIONS = {
         "origin_x": "Origin X (mm)",
         "origin_y": "Origin Y (mm)",
 
+        "preview_title": "Preview",
+        "showing_labels": "Showing {count} label(s). Template:",
+        "generate_pdf": "Generate PDF",
+        "back": "Back",
+        "choose_file": "Choose file",
+        "no_file_selected": "No file selected",
+        "file_required": "Please select a CSV file.",
     },
     "fr": {
         "hero_title": "Imprimez des étiquettes d'adresse en quelques minutes",
@@ -72,6 +79,13 @@ TRANSLATIONS = {
         "origin_x": "Origine X (mm)",
         "origin_y": "Origine Y (mm)",
 
+        "preview_title": "Prévisualisation",
+        "showing_labels": "Affichage de {count} étiquette(s). Modèle :",
+        "generate_pdf": "Générer le PDF",
+        "back": "Retour",
+        "choose_file": "Choisir un fichier",
+        "no_file_selected": "Aucun fichier sélectionné",
+        "file_required": "Veuillez sélectionner un fichier CSV.",
     },
 
     "es": {
@@ -110,6 +124,13 @@ TRANSLATIONS = {
         "origin_x": "Origen X (mm)",
         "origin_y": "Origen Y (mm)",
 
+        "preview_title": "Vista previa",
+        "showing_labels": "Mostrando {count} etiqueta(s). Plantilla:",
+        "generate_pdf": "Generar PDF",
+        "back": "Volver",
+        "choose_file": "Elegir archivo",
+        "no_file_selected": "Ningún archivo seleccionado",
+        "file_required": "Seleccione un archivo CSV.",
     },
     "de": {
         "hero_title": "Adressetiketten in Minuten drucken",
@@ -147,6 +168,13 @@ TRANSLATIONS = {
         "origin_x": "Ursprung X (mm)",
         "origin_y": "Ursprung Y (mm)",
 
+        "preview_title": "Vorschau",
+        "showing_labels": "Anzeige von {count} Etikett(en). Vorlage:",
+        "generate_pdf": "PDF erzeugen",
+        "back": "Zurück",
+        "choose_file": "Datei auswählen",
+        "no_file_selected": "Keine Datei ausgewählt",
+        "file_required": "Bitte eine CSV-Datei auswählen.",
     },
     "it": {
         "hero_title": "Stampa etichette indirizzo in pochi minuti",
@@ -184,6 +212,13 @@ TRANSLATIONS = {
         "origin_x": "Origine X (mm)",
         "origin_y": "Origine Y (mm)",
 
+        "preview_title": "Anteprima",
+        "showing_labels": "Visualizzazione di {count} etichetta/e. Modello:",
+        "generate_pdf": "Genera PDF",
+        "back": "Indietro",
+        "choose_file": "Scegli file",
+        "no_file_selected": "Nessun file selezionato",
+        "file_required": "Seleziona un file CSV.",
     },
     "nl": {
         "hero_title": "Print adreslabels in minuten",
@@ -221,6 +256,13 @@ TRANSLATIONS = {
         "origin_x": "Oorsprong X (mm)",
         "origin_y": "Oorsprong Y (mm)",
 
+        "preview_title": "Voorbeeld",
+        "showing_labels": "Weergave van {count} label(s). Sjabloon:",
+        "generate_pdf": "PDF genereren",
+        "back": "Terug",
+        "choose_file": "Bestand kiezen",
+        "no_file_selected": "Geen bestand geselecteerd",
+        "file_required": "Selecteer een CSV-bestand.",
     },
 }
 
@@ -232,3 +274,7 @@ def normalize_lang(value: str | None) -> str:
 
 def t(lang: str, key: str) -> str:
     return TRANSLATIONS.get(lang, TRANSLATIONS["en"]).get(key, TRANSLATIONS["en"].get(key, key))
+
+
+def tf(lang: str, key: str, **kwargs) -> str:
+    return t(lang, key).format(**kwargs)

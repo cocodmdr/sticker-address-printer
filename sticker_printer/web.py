@@ -17,7 +17,7 @@ def _decode_csv_bytes(raw: bytes) -> str:
 from .csv_parser import parse_addresses
 from .layout import list_avery_templates
 from .pdf_render import render_labels_pdf
-from .i18n import normalize_lang, t
+from .i18n import normalize_lang, t, tf
 
 
 SAMPLE_CSV = """title,name,surname,address,country
@@ -112,6 +112,7 @@ def create_app():
             templates=list_avery_templates(),
             lang=lang,
             tr=lambda k: t(lang, k),
+            tf=lambda k, **kw: tf(lang, k, **kw),
             title_line_1=title_line_1,
         )
 

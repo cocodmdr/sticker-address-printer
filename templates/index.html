@@ -10,10 +10,12 @@
     <div class="container">
       <section class="hero">
         <div>
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <div class="lang-row">
             <h1>{{ tr('hero_title') }}</h1>
             <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-              <a class="btn secondary" href="/?lang=en">EN</a><a class="btn secondary" href="/?lang=fr">FR</a><a class="btn secondary" href="/?lang=nl">NL</a><a class="btn secondary" href="/?lang=es">ES</a><a class="btn secondary" href="/?lang=de">DE</a><a class="btn secondary" href="/?lang=it">IT</a>
+              {% for code in ['en','fr','nl','es','de','it'] %}
+              <a href="/?lang={{ code }}" class="btn secondary {% if lang==code %}active{% endif %}">{{ code|upper }}</a>
+              {% endfor %}
               <button id="toggle-theme" class="btn secondary" type="button">{{ tr('dark_mode') }}</button>
             </div>
           </div>
@@ -40,8 +42,9 @@
         <h2 style="margin-top:0;">{{ tr('generate_labels') }}</h2>
         <p class="help-text">{{ tr('need_example') }} <a href="/sample.csv">{{ tr('download_sample') }}</a></p>
 
-        <form action="/preview" method="post" enctype="multipart/form-data">
+        <form id="label-form" action="/preview" method="post" enctype="multipart/form-data">
           <input type="hidden" name="lang" value="{{ lang }}"/>
+          <input type="hidden" name="csv_text" id="csv_text" value=""/>
           <div class="form-grid">
             <label>{{ tr('avery_template') }}
               <select name="template" id="template-select" onchange="toggleCustomFields()">
@@ -49,7 +52,13 @@
                 <option value="CUSTOM">CUSTOM</option>
               </select>
             </label>
-            <label>{{ tr('csv_file') }}<input type="file" name="csv_file" required accept=".csv,text/csv"/></label>
+            <label>{{ tr('csv_file') }}
+              <input id="csv_file" type="file" name="csv_file" accept=".csv,text/csv" style="position:absolute;left:-9999px;"/>
+              <div class="file-picker">
+                <button type="button" class="btn secondary" id="pick-file-btn">{{ tr('choose_file') }}</button>
+                <span id="file-name" class="help-text">{{ tr('no_file_selected') }}</span>
+              </div>
+            </label>
             <label>{{ tr('title_line_1') }}<input name="title_line_1" value=""/></label>
             <label>{{ tr('top_margin') }}<input name="top_margin" value="0"/></label>
             <label>{{ tr('right_margin') }}<input name="right_margin" value="0"/></label>
@@ -78,6 +87,40 @@
       toggleCustomFields();
       const btn=document.getElementById('toggle-theme'); const saved=localStorage.getItem('theme'); if(saved==='dark') document.body.classList.add('dark');
       btn.addEventListener('click',()=>{document.body.classList.toggle('dark'); localStorage.setItem('theme',document.body.classList.contains('dark')?'dark':'light');});
+
+      const fileInput = document.getElementById('csv_file');
+      const pickBtn = document.getElementById('pick-file-btn');
+      const fileName = document.getElementById('file-name');
+      const csvText = document.getElementById('csv_text');
+      const form = document.getElementById('label-form');
+      const noFileTxt = {{ tr('no_file_selected')|tojson }};
+      const fileRequiredTxt = {{ tr('file_required')|tojson }};
+
+      pickBtn.addEventListener('click', ()=>fileInput.click());
+      fileInput.addEventListener('change', async ()=>{
+        const f = fileInput.files && fileInput.files[0];
+        if(!f){ fileName.textContent = noFileTxt; return; }
+        fileName.textContent = f.name;
+        const text = await f.text();
+        csvText.value = text;
+        localStorage.setItem('csv_text_cache', text);
+        localStorage.setItem('csv_name_cache', f.name);
+      });
+
+      const cachedText = localStorage.getItem('csv_text_cache');
+      const cachedName = localStorage.getItem('csv_name_cache');
+      if(cachedText){ csvText.value = cachedText; }
+      if(cachedName){ fileName.textContent = cachedName + ' (cached)'; }
+
+      form.addEventListener('submit', (e)=>{
+        const hasFile = fileInput.files && fileInput.files.length > 0;
+        const hasCached = !!csvText.value.trim();
+        if(!hasFile && !hasCached){
+          e.preventDefault();
+          alert(fileRequiredTxt);
+        }
+      });
+
       {% if ga_measurement_id %}
       function initAnalytics(){ if(window.__gaLoaded) return; window.__gaLoaded=true; const s=document.createElement('script'); s.async=true; s.src='https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}'; document.head.appendChild(s); window.dataLayer=window.dataLayer||[]; function gtag(){dataLayer.push(arguments);} window.gtag=gtag; gtag('js', new Date()); gtag('config', '{{ ga_measurement_id }}'); }
       (function(){ const key='cookie_consent_v1'; const choice=localStorage.getItem(key); const banner=document.getElementById('cookie-banner'); const accept=document.getElementById('cookie-accept'); const reject=document.getElementById('cookie-reject'); if(choice==='accepted'){initAnalytics();} else if(choice!=='rejected'&&banner){banner.classList.add('show');} if(accept){accept.addEventListener('click',()=>{localStorage.setItem(key,'accepted'); banner&&banner.classList.remove('show'); initAnalytics();});} if(reject){reject.addEventListener('click',()=>{localStorage.setItem(key,'rejected'); banner&&banner.classList.remove('show');});}})();

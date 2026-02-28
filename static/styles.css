@@ -123,3 +123,5 @@ body.dark .section-title{color:#f8fafc;}
 .cookie-row{display:flex;gap:.8rem;align-items:center;justify-content:space-between;flex-wrap:wrap;}
 .cookie-text{color:var(--muted);font-size:.92rem;max-width:680px;}
 .cookie-actions{display:flex;gap:.5rem;}
+
+.btn.secondary.active{border-color:#3b82f6;background:#dbeafe;color:#1e3a8a;font-weight:700;}
