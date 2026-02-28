@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 from flask import Flask, render_template, request, send_file, Response
 import tempfile
 
@@ -69,11 +70,12 @@ def _lang_from_request(req):
 
 def create_app():
     app = Flask(__name__, template_folder="../templates", static_folder="../static", static_url_path="/static")
+    ga_measurement_id = os.getenv("GA_MEASUREMENT_ID", "").strip()
 
     @app.get("/")
     def index():
         lang = _lang_from_request(request)
-        return render_template("index.html", templates=list_avery_templates(), error=None, lang=lang, tr=lambda k: t(lang, k))
+        return render_template("index.html", templates=list_avery_templates(), error=None, lang=lang, tr=lambda k: t(lang, k), ga_measurement_id=ga_measurement_id)
 
     @app.get("/sample.csv")
     def sample_csv():
@@ -90,7 +92,7 @@ def create_app():
         except ValueError as e:
             lang = _lang_from_request(request)
             return (
-                render_template("index.html", templates=list_avery_templates(), error=str(e), lang=lang, tr=lambda k: t(lang, k)),
+                render_template("index.html", templates=list_avery_templates(), error=str(e), lang=lang, tr=lambda k: t(lang, k), ga_measurement_id=ga_measurement_id),
                 400,
             )
 
@@ -118,7 +120,7 @@ def create_app():
         except ValueError as e:
             lang = _lang_from_request(request)
             return (
-                render_template("index.html", templates=list_avery_templates(), error=str(e), lang=lang, tr=lambda k: t(lang, k)),
+                render_template("index.html", templates=list_avery_templates(), error=str(e), lang=lang, tr=lambda k: t(lang, k), ga_measurement_id=ga_measurement_id),
                 400,
             )
 

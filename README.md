@@ -47,3 +47,10 @@ pytest -q
 python -m sticker_printer.web
 ```
 Open http://127.0.0.1:5000
+
+
+## Traffic analytics (Google Analytics)
+Set environment variable `GA_MEASUREMENT_ID` (example: `G-XXXXXXXXXX`).
+When set, the homepage injects gtag.js.
+
+On Render: Service -> Environment -> add `GA_MEASUREMENT_ID` and redeploy.
