@@ -16,6 +16,7 @@ def _decode_csv_bytes(raw: bytes) -> str:
 from .csv_parser import parse_addresses
 from .layout import list_avery_templates
 from .pdf_render import render_labels_pdf
+from .i18n import normalize_lang, t
 
 
 SAMPLE_CSV = """title,name,surname,address,country
@@ -62,12 +63,17 @@ def _extract_form_and_addresses(req):
     return addresses, csv_text, template_spec, template_name, top, right, bottom, left
 
 
+def _lang_from_request(req):
+    return normalize_lang(req.values.get("lang") or req.args.get("lang"))
+
+
 def create_app():
     app = Flask(__name__, template_folder="../templates", static_folder="../static", static_url_path="/static")
 
     @app.get("/")
     def index():
-        return render_template("index.html", templates=list_avery_templates(), error=None)
+        lang = _lang_from_request(request)
+        return render_template("index.html", templates=list_avery_templates(), error=None, lang=lang, tr=lambda k: t(lang, k))
 
     @app.get("/sample.csv")
     def sample_csv():
@@ -82,12 +88,14 @@ def create_app():
         try:
             addresses, csv_text, template_spec, template_name, top, right, bottom, left = _extract_form_and_addresses(request)
         except ValueError as e:
+            lang = _lang_from_request(request)
             return (
-                render_template("index.html", templates=list_avery_templates(), error=str(e)),
+                render_template("index.html", templates=list_avery_templates(), error=str(e), lang=lang, tr=lambda k: t(lang, k)),
                 400,
             )
 
         preview_rows = addresses[:12]
+        lang = _lang_from_request(request)
         return render_template(
             "preview.html",
             preview_rows=preview_rows,
@@ -99,6 +107,8 @@ def create_app():
             left_margin=left,
             template_spec=template_spec if isinstance(template_spec, dict) else None,
             templates=list_avery_templates(),
+            lang=lang,
+            tr=lambda k: t(lang, k),
         )
 
     @app.post("/generate")
@@ -106,8 +116,9 @@ def create_app():
         try:
             addresses, _csv_text, template_spec, template_name, top, right, bottom, left = _extract_form_and_addresses(request)
         except ValueError as e:
+            lang = _lang_from_request(request)
             return (
-                render_template("index.html", templates=list_avery_templates(), error=str(e)),
+                render_template("index.html", templates=list_avery_templates(), error=str(e), lang=lang, tr=lambda k: t(lang, k)),
                 400,
             )
 

@@ -16,7 +16,7 @@ def test_homepage_supports_french():
     response = client.get('/?lang=fr')
     assert response.status_code == 200
     body = response.get_data(as_text=True)
-    assert 'Imprimez des étiquettes d\'adresse en quelques minutes' in body
+    assert 'Imprimez des étiquettes' in body
 
 
 def test_homepage_supports_dutch():

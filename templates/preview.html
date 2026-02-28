@@ -19,6 +19,7 @@
         </ul>
 
         <form action="/generate" method="post">
+          <input type="hidden" name="lang" value="{{ lang }}"/>
           <input type="hidden" name="csv_text" value="{{ csv_text|e }}"/>
           <input type="hidden" name="template" value="{{ template }}"/>
           <input type="hidden" name="top_margin" value="{{ top_margin }}"/>

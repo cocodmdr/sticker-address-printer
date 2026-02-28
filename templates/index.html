@@ -10,14 +10,16 @@
     <div class="container">
       <section class="hero">
         <div>
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;">
-            <h1>Print address labels in minutes</h1>
-            <button id="toggle-theme" class="btn secondary" type="button">Dark mode</button>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+            <h1>{{ tr('hero_title') }}</h1>
+            <div style="display:flex;gap:.5rem;">
+              <a class="btn secondary" href="/?lang=en">EN</a>
+              <a class="btn secondary" href="/?lang=fr">FR</a>
+              <a class="btn secondary" href="/?lang=nl">NL</a>
+              <button id="toggle-theme" class="btn secondary" type="button">{{ tr('dark_mode') }}</button>
+            </div>
           </div>
-          <p>
-            Upload your CSV, pick your Avery sheet (or build your own format), tweak margins, preview the result,
-            and export a print-ready PDF for mailing campaigns.
-          </p>
+          <p>{{ tr('hero_desc') }}</p>
           {% if error %}
           <p style="color:#b91c1c; font-weight:600;">{{ error }}</p>
           {% endif %}
@@ -33,23 +35,24 @@
         </div>
       </section>
 
-      <h2 class="section-title">How it works</h2>
+      <h2 class="section-title">{{ tr('how_it_works') }}</h2>
       <div class="grid-3">
-        <article class="card"><h3>1. Upload</h3><p>Import a CSV with title, name, surname, address and country.</p></article>
-        <article class="card"><h3>2. Configure</h3><p>Select Avery format or define your own label sheet dimensions.</p></article>
-        <article class="card"><h3>3. Print</h3><p>Preview labels, generate PDF, and print on sticker sheets.</p></article>
+        <article class="card"><h3>{{ tr('step1_title') }}</h3><p>{{ tr('step1_desc') }}</p></article>
+        <article class="card"><h3>{{ tr('step2_title') }}</h3><p>{{ tr('step2_desc') }}</p></article>
+        <article class="card"><h3>{{ tr('step3_title') }}</h3><p>{{ tr('step3_desc') }}</p></article>
       </div>
 
-      <h2 class="section-title">Templates preview</h2>
+      <h2 class="section-title">{{ tr('templates_preview') }}</h2>
       <div class="hero-card" style="margin-bottom:1rem;">
         <img src="/static/images/templates-preview.svg" alt="Avery templates preview"/>
       </div>
 
       <section class="form-panel">
-        <h2 style="margin-top:0;">Generate your labels</h2>
-        <p class="help-text">Need an example? <a href="/sample.csv">Download sample CSV</a></p>
+        <h2 style="margin-top:0;">{{ tr('generate_labels') }}</h2>
+        <p class="help-text">{{ tr('need_example') }} <a href="/sample.csv">{{ tr('download_sample') }}</a></p>
 
         <form action="/preview" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="lang" value="{{ lang }}"/>
           <div class="form-grid">
             <label>Avery template
               <select name="template" id="template-select" onchange="toggleCustomFields()">
@@ -82,8 +85,8 @@
           </div>
 
           <div class="actions">
-            <button class="btn" type="submit">Preview labels</button>
-            <a class="btn secondary" href="/sample.csv">Download sample CSV</a>
+            <button class="btn" type="submit">{{ tr('preview_labels') }}</button>
+            <a class="btn secondary" href="/sample.csv">{{ tr('download_sample') }}</a>
           </div>
         </form>
       </section>
