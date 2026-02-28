@@ -17,5 +17,4 @@ def test_preview_list_displays_title_line_1_when_present():
     body = res.get_data(as_text=True)
 
     assert res.status_code == 200
-    assert 'INVITATION' in body
-    assert 'Dr Jane Doe — 1 Main St — NL' in body
+    assert 'INVITATION Dr Jane Doe — 1 Main St — NL' in body
