@@ -4,9 +4,11 @@ from reportlab.lib.pagesizes import A4
 from .layout import avery_template, label_positions, validate_template_spec
 
 
-def _format_address(row: dict) -> list[str]:
+def _format_address(row: dict, global_title_line: str = "") -> list[str]:
     first = " ".join(x for x in [row.get("title", ""), row.get("name", ""), row.get("surname", "")] if x).strip()
-    return [line for line in [first, row.get("address", ""), row.get("country", "")] if line]
+    title_line = (global_title_line or "").strip()
+    ordered = [title_line, first, row.get("address", ""), row.get("country", "")]
+    return [line for line in ordered if line]
 
 
 def _resolve_template(template_spec_or_code):
@@ -15,7 +17,8 @@ def _resolve_template(template_spec_or_code):
     return avery_template(template_spec_or_code)
 
 
-def render_labels_pdf(addresses, template_spec_or_code, output_path, top_margin_mm=0, right_margin_mm=0, bottom_margin_mm=0, left_margin_mm=0):
+def render_labels_pdf(addresses, template_spec_or_code, output_path, top_margin_mm=0, right_margin_mm=0, bottom_margin_mm=0, left_margin_mm=0, global_title_line=""):
+
     tpl = _resolve_template(template_spec_or_code)
     per_page = int(tpl["rows"]) * int(tpl["cols"])
 
@@ -29,7 +32,7 @@ def render_labels_pdf(addresses, template_spec_or_code, output_path, top_margin_
         x, y_top, w, h = boxes[idx % per_page]
         y = A4[1] - y_top - h
 
-        lines = _format_address(row)
+        lines = _format_address(row, global_title_line=global_title_line)
         text = c.beginText(x + 6, y + h - 14)
         text.setFont("Helvetica", 10)
         text.setLeading(12)
