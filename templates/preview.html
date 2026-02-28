@@ -25,6 +25,16 @@
           <input type="hidden" name="right_margin" value="{{ right_margin }}"/>
           <input type="hidden" name="bottom_margin" value="{{ bottom_margin }}"/>
           <input type="hidden" name="left_margin" value="{{ left_margin }}"/>
+          {% if template == 'CUSTOM' and template_spec %}
+          <input type="hidden" name="custom_rows" value="{{ template_spec.rows }}"/>
+          <input type="hidden" name="custom_cols" value="{{ template_spec.cols }}"/>
+          <input type="hidden" name="custom_label_width_mm" value="{{ template_spec.label_width_mm }}"/>
+          <input type="hidden" name="custom_label_height_mm" value="{{ template_spec.label_height_mm }}"/>
+          <input type="hidden" name="custom_pitch_x_mm" value="{{ template_spec.pitch_x_mm }}"/>
+          <input type="hidden" name="custom_pitch_y_mm" value="{{ template_spec.pitch_y_mm }}"/>
+          <input type="hidden" name="custom_origin_x_mm" value="{{ template_spec.origin_x_mm }}"/>
+          <input type="hidden" name="custom_origin_y_mm" value="{{ template_spec.origin_y_mm }}"/>
+          {% endif %}
           <div class="actions">
             <button class="btn" type="submit">Generate PDF</button>
             <a class="btn secondary" href="/">Back</a>

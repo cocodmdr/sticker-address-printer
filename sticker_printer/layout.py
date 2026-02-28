@@ -34,10 +34,31 @@ AVERY_TEMPLATES = {
 }
 
 
+_TEMPLATE_KEYS = {
+    "rows",
+    "cols",
+    "label_width_mm",
+    "label_height_mm",
+    "pitch_x_mm",
+    "pitch_y_mm",
+    "origin_x_mm",
+    "origin_y_mm",
+}
+
+
 def avery_template(code: str):
     if code not in AVERY_TEMPLATES:
         raise ValueError(f"Unknown Avery template: {code}")
     return AVERY_TEMPLATES[code]
+
+
+def validate_template_spec(spec: dict):
+    missing = _TEMPLATE_KEYS - set(spec.keys())
+    if missing:
+        raise ValueError(f"Missing template fields: {', '.join(sorted(missing))}")
+    if int(spec["rows"]) <= 0 or int(spec["cols"]) <= 0:
+        raise ValueError("Rows and columns must be > 0")
+    return spec
 
 
 def list_avery_templates():
@@ -50,16 +71,16 @@ def mm_to_pt(mm: float) -> float:
 
 def label_positions(template: dict, top_margin_mm=0.0, right_margin_mm=0.0, bottom_margin_mm=0.0, left_margin_mm=0.0):
     boxes = []
-    for r in range(template["rows"]):
-        for c in range(template["cols"]):
-            x_mm = template["origin_x_mm"] + c * template["pitch_x_mm"] + left_margin_mm - right_margin_mm
-            y_mm = template["origin_y_mm"] + r * template["pitch_y_mm"] + top_margin_mm - bottom_margin_mm
+    for r in range(int(template["rows"])):
+        for c in range(int(template["cols"])):
+            x_mm = float(template["origin_x_mm"]) + c * float(template["pitch_x_mm"]) + left_margin_mm - right_margin_mm
+            y_mm = float(template["origin_y_mm"]) + r * float(template["pitch_y_mm"]) + top_margin_mm - bottom_margin_mm
             boxes.append(
                 (
                     mm_to_pt(x_mm),
                     mm_to_pt(y_mm),
-                    mm_to_pt(template["label_width_mm"]),
-                    mm_to_pt(template["label_height_mm"]),
+                    mm_to_pt(float(template["label_width_mm"])),
+                    mm_to_pt(float(template["label_height_mm"])),
                 )
             )
     return boxes

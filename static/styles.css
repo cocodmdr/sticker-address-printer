@@ -104,3 +104,7 @@ input, select, textarea {
   .hero { grid-template-columns: 1fr; }
   .grid-3, .form-grid { grid-template-columns: 1fr; }
 }
+
+
+body.dark{--bg:#0b1220;--card:#111827;--text:#e5e7eb;--muted:#94a3b8;--border:#243041;}
+body.dark a{color:#93c5fd;}

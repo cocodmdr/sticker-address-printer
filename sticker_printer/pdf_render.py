@@ -1,7 +1,7 @@
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 
-from .layout import avery_template, label_positions
+from .layout import avery_template, label_positions, validate_template_spec
 
 
 def _format_address(row: dict) -> list[str]:
@@ -9,9 +9,15 @@ def _format_address(row: dict) -> list[str]:
     return [line for line in [first, row.get("address", ""), row.get("country", "")] if line]
 
 
-def render_labels_pdf(addresses, template_code, output_path, top_margin_mm=0, right_margin_mm=0, bottom_margin_mm=0, left_margin_mm=0):
-    tpl = avery_template(template_code)
-    per_page = tpl["rows"] * tpl["cols"]
+def _resolve_template(template_spec_or_code):
+    if isinstance(template_spec_or_code, dict):
+        return validate_template_spec(template_spec_or_code)
+    return avery_template(template_spec_or_code)
+
+
+def render_labels_pdf(addresses, template_spec_or_code, output_path, top_margin_mm=0, right_margin_mm=0, bottom_margin_mm=0, left_margin_mm=0):
+    tpl = _resolve_template(template_spec_or_code)
+    per_page = int(tpl["rows"]) * int(tpl["cols"])
 
     c = canvas.Canvas(output_path, pagesize=A4)
     boxes = label_positions(tpl, top_margin_mm, right_margin_mm, bottom_margin_mm, left_margin_mm)

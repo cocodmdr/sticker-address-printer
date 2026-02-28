@@ -10,14 +10,21 @@
     <div class="container">
       <section class="hero">
         <div>
-          <h1>Print address labels in minutes</h1>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;">
+            <h1>Print address labels in minutes</h1>
+            <button id="toggle-theme" class="btn secondary" type="button">Dark mode</button>
+          </div>
           <p>
-            Upload your CSV, pick your Avery sheet, tweak margins, preview the result,
+            Upload your CSV, pick your Avery sheet (or build your own format), tweak margins, preview the result,
             and export a print-ready PDF for mailing campaigns.
           </p>
+          {% if error %}
+          <p style="color:#b91c1c; font-weight:600;">{{ error }}</p>
+          {% endif %}
           <div class="badges">
             <span class="badge">CSV upload</span>
             <span class="badge">Avery templates</span>
+            <span class="badge">Custom format</span>
             <span class="badge">PDF export</span>
           </div>
         </div>
@@ -28,18 +35,9 @@
 
       <h2 class="section-title">How it works</h2>
       <div class="grid-3">
-        <article class="card">
-          <h3>1. Upload</h3>
-          <p>Import a CSV with title, name, surname, address and country.</p>
-        </article>
-        <article class="card">
-          <h3>2. Configure</h3>
-          <p>Select the Avery format and adjust margins to match your printer.</p>
-        </article>
-        <article class="card">
-          <h3>3. Print</h3>
-          <p>Preview labels, generate PDF, and print on your sticker sheets.</p>
-        </article>
+        <article class="card"><h3>1. Upload</h3><p>Import a CSV with title, name, surname, address and country.</p></article>
+        <article class="card"><h3>2. Configure</h3><p>Select Avery format or define your own label sheet dimensions.</p></article>
+        <article class="card"><h3>3. Print</h3><p>Preview labels, generate PDF, and print on sticker sheets.</p></article>
       </div>
 
       <h2 class="section-title">Templates preview</h2>
@@ -49,39 +47,38 @@
 
       <section class="form-panel">
         <h2 style="margin-top:0;">Generate your labels</h2>
-        <p class="help-text">
-          Need an example? <a href="/sample.csv">Download sample CSV</a>
-        </p>
+        <p class="help-text">Need an example? <a href="/sample.csv">Download sample CSV</a></p>
 
         <form action="/preview" method="post" enctype="multipart/form-data">
           <div class="form-grid">
             <label>Avery template
-              <select name="template">
+              <select name="template" id="template-select" onchange="toggleCustomFields()">
                 {% for code in templates %}
                 <option value="{{ code }}">{{ code }}</option>
                 {% endfor %}
+                <option value="CUSTOM">CUSTOM</option>
               </select>
             </label>
 
             <label>CSV file
-              <input type="file" name="csv_file" required/>
+              <input type="file" name="csv_file" required accept=".csv,text/csv"/>
             </label>
 
-            <label>Top margin (mm)
-              <input name="top_margin" value="0"/>
-            </label>
+            <label>Top margin (mm)<input name="top_margin" value="0"/></label>
+            <label>Right margin (mm)<input name="right_margin" value="0"/></label>
+            <label>Bottom margin (mm)<input name="bottom_margin" value="0"/></label>
+            <label>Left margin (mm)<input name="left_margin" value="0"/></label>
+          </div>
 
-            <label>Right margin (mm)
-              <input name="right_margin" value="0"/>
-            </label>
-
-            <label>Bottom margin (mm)
-              <input name="bottom_margin" value="0"/>
-            </label>
-
-            <label>Left margin (mm)
-              <input name="left_margin" value="0"/>
-            </label>
+          <div id="custom-fields" class="form-grid" style="display:none; margin-top:.8rem;">
+            <label>Rows <input name="custom_rows" value="7"/></label>
+            <label>Columns <input name="custom_cols" value="3"/></label>
+            <label>Label width (mm) <input name="custom_label_width_mm" value="63.5"/></label>
+            <label>Label height (mm) <input name="custom_label_height_mm" value="38.1"/></label>
+            <label>Pitch X (mm) <input name="custom_pitch_x_mm" value="66.7"/></label>
+            <label>Pitch Y (mm) <input name="custom_pitch_y_mm" value="38.1"/></label>
+            <label>Origin X (mm) <input name="custom_origin_x_mm" value="7.1"/></label>
+            <label>Origin Y (mm) <input name="custom_origin_y_mm" value="15.1"/></label>
           </div>
 
           <div class="actions">
@@ -91,5 +88,22 @@
         </form>
       </section>
     </div>
+
+    <script>
+      function toggleCustomFields() {
+        const sel = document.getElementById('template-select');
+        const cf = document.getElementById('custom-fields');
+        cf.style.display = sel.value === 'CUSTOM' ? 'grid' : 'none';
+      }
+      toggleCustomFields();
+
+      const btn = document.getElementById('toggle-theme');
+      const saved = localStorage.getItem('theme');
+      if (saved === 'dark') document.body.classList.add('dark');
+      btn.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+      });
+    </script>
   </body>
 </html>
