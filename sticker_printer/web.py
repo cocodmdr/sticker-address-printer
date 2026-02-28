@@ -1,6 +1,17 @@
 from flask import Flask, render_template, request, send_file, Response
 import tempfile
 
+
+def _decode_csv_bytes(raw: bytes) -> str:
+    """Decode uploaded CSV with common encodings from spreadsheet exports."""
+    for enc in ("utf-8-sig", "utf-8", "cp1252", "latin-1"):
+        try:
+            return raw.decode(enc)
+        except UnicodeDecodeError:
+            continue
+    raise ValueError("Unable to decode CSV file. Please save it as UTF-8.")
+
+
 from .csv_parser import parse_addresses
 from .layout import list_avery_templates
 from .pdf_render import render_labels_pdf
@@ -15,7 +26,8 @@ Mr,John,Smith,2 River Rd,FR
 def _extract_form_and_addresses(req):
     csv_text = ""
     if "csv_file" in req.files and req.files["csv_file"].filename:
-        csv_text = req.files["csv_file"].read().decode("utf-8")
+        raw = req.files["csv_file"].read()
+        csv_text = _decode_csv_bytes(raw)
     else:
         csv_text = req.form.get("csv_text", "")
 
