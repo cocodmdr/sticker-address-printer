@@ -131,3 +131,21 @@ body.dark .section-title{color:#f8fafc;}
 textarea{resize:vertical;min-height:60px;}
 .form-panel{box-shadow:0 8px 24px rgba(15,23,42,.07);}
 body.dark .form-panel{box-shadow:0 8px 24px rgba(0,0,0,.3);}
+
+
+/* Mobile-first polish */
+.actions .btn{min-height:44px;}
+input, select, textarea, .btn{font-size:16px;} /* prevent iOS zoom on focus */
+
+@media (max-width: 640px) {
+  .container { width: 94%; }
+  .hero { padding: 1.5rem 0 1rem; gap: 1rem; }
+  .hero h1 { font-size: 1.45rem; line-height: 1.2; }
+  .section-title { font-size: 1.15rem; margin: 1.2rem 0 .7rem; }
+  .form-panel { padding: .9rem; border-radius: 12px; }
+  .actions { flex-direction: column; align-items: stretch; }
+  .actions .btn { width: 100%; text-align: center; }
+  .lang-row { gap: .6rem; }
+  .lang-row .btn.secondary { padding: .45rem .55rem; }
+  .cookie-banner { width: 96%; left: 2%; transform: none; bottom: 10px; }
+}
