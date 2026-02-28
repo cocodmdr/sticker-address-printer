@@ -17,7 +17,7 @@ def _resolve_template(template_spec_or_code):
     return avery_template(template_spec_or_code)
 
 
-def render_labels_pdf(addresses, template_spec_or_code, output_path, top_margin_mm=0, right_margin_mm=0, bottom_margin_mm=0, left_margin_mm=0, sender_address=""):
+def render_labels_pdf(addresses, template_spec_or_code, output_path, top_margin_mm=0, right_margin_mm=0, bottom_margin_mm=0, left_margin_mm=0, sender_address="", font_family="Helvetica"):
 
     tpl = _resolve_template(template_spec_or_code)
     per_page = int(tpl["rows"]) * int(tpl["cols"])
@@ -35,23 +35,25 @@ def render_labels_pdf(addresses, template_spec_or_code, output_path, top_margin_
         # Sender block (small + highlighted)
         sender_lines = [ln.strip() for ln in (sender_address or "").splitlines() if ln.strip()]
         if sender_lines:
-            sender_box_h = min(22, h * 0.28)
-            c.setFillColorRGB(1.0, 0.97, 0.78)
-            c.rect(x + 4, y + h - sender_box_h - 4, w - 8, sender_box_h, stroke=0, fill=1)
-            sender_text = c.beginText(x + 8, y + h - 10)
-            sender_text.setFont("Helvetica", 6.8)
+            sender_text = c.beginText(x + 6, y + h - 10)
+            sender_text.setFont(font_family, 6.8)
             sender_text.setLeading(7.5)
-            for ln in sender_lines[:2]:
-                sender_text.textLine(ln)
-            c.setFillColorRGB(0, 0, 0)
+            sender_first = sender_lines[0]
+            sender_text.textLine(sender_first)
+            if len(sender_lines) > 1:
+                sender_text.textLine(sender_lines[1])
             c.drawText(sender_text)
-            start_y = y + h - sender_box_h - 10
+            # underline first sender line
+            underline_y = y + h - 12
+            c.setLineWidth(0.6)
+            c.line(x + 6, underline_y, min(x + 6 + (len(sender_first) * 3.8), x + w - 6), underline_y)
+            start_y = y + h - 26
         else:
             start_y = y + h - 14
 
         lines = _format_address(row)
         text = c.beginText(x + 6, start_y)
-        text.setFont("Helvetica", 10)
+        text.setFont(font_family, 10)
         text.setLeading(12)
         for line in lines:
             text.textLine(line)

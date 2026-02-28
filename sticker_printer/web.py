@@ -20,9 +20,9 @@ from .pdf_render import render_labels_pdf
 from .i18n import normalize_lang, t, tf
 
 
-SAMPLE_CSV = """title,name,surname,address,country
-Dr,Jane,Doe,1 Main St,NL
-Mr,John,Smith,2 River Rd,FR
+SAMPLE_CSV = """title_line_1,title,name,surname,address,country
+INVITATION,Dr,Jane,Doe,1 Main St,NL
+,Mr,John,Smith,2 River Rd,FR
 """
 
 
@@ -62,7 +62,8 @@ def _extract_form_and_addresses(req):
     bottom = float(req.form.get("bottom_margin", 0) or 0)
     left = float(req.form.get("left_margin", 0) or 0)
     sender_address = (req.form.get("sender_address", "") or "").strip()
-    return addresses, csv_text, template_spec, template_name, top, right, bottom, left, sender_address
+    font_family = (req.form.get("font_family", "Helvetica") or "Helvetica").strip()
+    return addresses, csv_text, template_spec, template_name, top, right, bottom, left, sender_address, font_family
 
 
 def _lang_from_request(req):
@@ -89,7 +90,7 @@ def create_app():
     @app.post("/preview")
     def preview():
         try:
-            addresses, csv_text, template_spec, template_name, top, right, bottom, left, sender_address = _extract_form_and_addresses(request)
+            addresses, csv_text, template_spec, template_name, top, right, bottom, left, sender_address, font_family = _extract_form_and_addresses(request)
         except ValueError as e:
             lang = _lang_from_request(request)
             return (
@@ -114,12 +115,13 @@ def create_app():
             tr=lambda k: t(lang, k),
             tf=lambda k, **kw: tf(lang, k, **kw),
             sender_address=sender_address,
+            font_family=font_family,
         )
 
     @app.post("/generate")
     def generate():
         try:
-            addresses, _csv_text, template_spec, template_name, top, right, bottom, left, sender_address = _extract_form_and_addresses(request)
+            addresses, _csv_text, template_spec, template_name, top, right, bottom, left, sender_address, font_family = _extract_form_and_addresses(request)
         except ValueError as e:
             lang = _lang_from_request(request)
             return (
@@ -130,7 +132,7 @@ def create_app():
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
             out = tmp.name
 
-        render_labels_pdf(addresses, template_spec, out, top, right, bottom, left, sender_address=sender_address)
+        render_labels_pdf(addresses, template_spec, out, top, right, bottom, left, sender_address=sender_address, font_family=font_family)
         ts = datetime.now().strftime("%Y%m%d-%H%M%S")
         filename = f"labels_{template_name}_{ts}.pdf"
         return send_file(out, as_attachment=True, download_name=filename, mimetype="application/pdf")

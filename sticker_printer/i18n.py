@@ -35,6 +35,7 @@ TRANSLATIONS = {
         "origin_x": "Origin X (mm)",
         "origin_y": "Origin Y (mm)",
         "sender_address": "Sender address (optional)",
+        "font_family": "Font family",
 
         "preview_title": "Preview",
         "showing_labels": "Showing {count} label(s). Template:",
@@ -80,6 +81,7 @@ TRANSLATIONS = {
         "origin_x": "Origine X (mm)",
         "origin_y": "Origine Y (mm)",
         "sender_address": "Indirizzo mittente (opzionale)",
+        "font_family": "Carattere",
 
         "preview_title": "Prévisualisation",
         "showing_labels": "Affichage de {count} étiquette(s). Modèle :",
@@ -126,6 +128,7 @@ TRANSLATIONS = {
         "origin_x": "Origen X (mm)",
         "origin_y": "Origen Y (mm)",
         "sender_address": "Dirección remitente (opcional)",
+        "font_family": "Tipografía",
 
         "preview_title": "Vista previa",
         "showing_labels": "Mostrando {count} etiqueta(s). Plantilla:",
@@ -171,6 +174,7 @@ TRANSLATIONS = {
         "origin_x": "Ursprung X (mm)",
         "origin_y": "Ursprung Y (mm)",
         "sender_address": "Absenderadresse (optional)",
+        "font_family": "Schriftart",
 
         "preview_title": "Vorschau",
         "showing_labels": "Anzeige von {count} Etikett(en). Vorlage:",
@@ -260,6 +264,7 @@ TRANSLATIONS = {
         "origin_x": "Oorsprong X (mm)",
         "origin_y": "Oorsprong Y (mm)",
         "sender_address": "Afzenderadres (optioneel)",
+        "font_family": "Lettertype",
 
         "preview_title": "Voorbeeld",
         "showing_labels": "Weergave van {count} label(s). Sjabloon:",
