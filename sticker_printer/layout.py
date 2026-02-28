@@ -10,7 +10,27 @@ AVERY_TEMPLATES = {
         "pitch_y_mm": 38.1,
         "origin_x_mm": 7.1,
         "origin_y_mm": 15.1,
-    }
+    },
+    "L7161": {
+        "rows": 6,
+        "cols": 3,
+        "label_width_mm": 63.5,
+        "label_height_mm": 46.6,
+        "pitch_x_mm": 66.7,
+        "pitch_y_mm": 46.6,
+        "origin_x_mm": 7.1,
+        "origin_y_mm": 19.0,
+    },
+    "L7163": {
+        "rows": 7,
+        "cols": 2,
+        "label_width_mm": 99.1,
+        "label_height_mm": 38.1,
+        "pitch_x_mm": 101.6,
+        "pitch_y_mm": 38.1,
+        "origin_x_mm": 8.5,
+        "origin_y_mm": 15.1,
+    },
 }
 
 
@@ -18,6 +38,10 @@ def avery_template(code: str):
     if code not in AVERY_TEMPLATES:
         raise ValueError(f"Unknown Avery template: {code}")
     return AVERY_TEMPLATES[code]
+
+
+def list_avery_templates():
+    return sorted(AVERY_TEMPLATES.keys())
 
 
 def mm_to_pt(mm: float) -> float:

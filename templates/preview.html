@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head><title>Preview - Address Sticker Printer</title></head>
+  <body>
+    <h1>Preview</h1>
+    <p>Showing {{ preview_rows|length }} label(s).</p>
+    <ul>
+      {% for r in preview_rows %}
+      <li>
+        {{ [r.title, r.name, r.surname]|select|join(' ') }} — {{ r.address }} — {{ r.country }}
+      </li>
+      {% endfor %}
+    </ul>
+
+    <form action="/generate" method="post">
+      <input type="hidden" name="csv_text" value="{{ csv_text|e }}"/>
+      <input type="hidden" name="template" value="{{ template }}"/>
+      <input type="hidden" name="top_margin" value="{{ top_margin }}"/>
+      <input type="hidden" name="right_margin" value="{{ right_margin }}"/>
+      <input type="hidden" name="bottom_margin" value="{{ bottom_margin }}"/>
+      <input type="hidden" name="left_margin" value="{{ left_margin }}"/>
+      <button type="submit">Generate PDF</button>
+    </form>
+
+    <p><a href="/">Back</a></p>
+  </body>
+</html>
