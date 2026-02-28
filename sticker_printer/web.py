@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+import base64
 from flask import Flask, render_template, request, send_file, Response
 import tempfile
 
@@ -99,6 +100,12 @@ def create_app():
             )
 
         preview_rows = addresses[:12]
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+            preview_path = tmp.name
+        render_labels_pdf(addresses, template_spec, preview_path, top, right, bottom, left, sender_address=sender_address, font_family=font_family)
+        with open(preview_path, "rb") as f:
+            pdf_data_uri = "data:application/pdf;base64," + base64.b64encode(f.read()).decode("ascii")
+
         lang = _lang_from_request(request)
         return render_template(
             "preview.html",
@@ -116,6 +123,7 @@ def create_app():
             tf=lambda k, **kw: tf(lang, k, **kw),
             sender_address=sender_address,
             font_family=font_family,
+            pdf_data_uri=pdf_data_uri,
         )
 
     @app.post("/generate")
