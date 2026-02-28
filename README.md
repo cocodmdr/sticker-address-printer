@@ -30,3 +30,20 @@ pytest -q
 - `web.py`: Flask delivery layer
 
 This keeps responsibilities separated (SOLID/SRP) and makes units testable.
+
+
+## Free hosting (Render)
+This project includes `render.yaml` and `Procfile`.
+
+1. Push to GitHub
+2. Go to Render and create a **Web Service** from the repo
+3. Use free plan
+4. Deploy
+
+## Quick local test
+```bash
+source .venv/bin/activate
+pytest -q
+python -m sticker_printer.web
+```
+Open http://127.0.0.1:5000
