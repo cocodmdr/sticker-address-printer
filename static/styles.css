@@ -108,3 +108,6 @@ input, select, textarea {
 
 body.dark{--bg:#0b1220;--card:#111827;--text:#e5e7eb;--muted:#94a3b8;--border:#243041;}
 body.dark a{color:#93c5fd;}
+
+body.dark .hero h1{color:#ffffff;text-shadow:0 1px 0 rgba(0,0,0,.25);}
+body.dark .section-title{color:#f8fafc;}
