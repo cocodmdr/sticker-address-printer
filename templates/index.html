@@ -110,6 +110,7 @@
       const pickBtn = document.getElementById('pick-file-btn');
       const fileName = document.getElementById('file-name');
       const csvText = document.getElementById('csv_text');
+      const senderAddress = document.querySelector('textarea[name="sender_address"]');
       const form = document.getElementById('label-form');
       const noFileTxt = {{ tr('no_file_selected')|tojson }};
       const fileRequiredTxt = {{ tr('file_required')|tojson }};
@@ -127,12 +128,23 @@
 
       const cachedText = localStorage.getItem('csv_text_cache');
       const cachedName = localStorage.getItem('csv_name_cache');
+      const cachedSender = localStorage.getItem('sender_address_cache');
       if(cachedText){ csvText.value = cachedText; }
       if(cachedName){ fileName.textContent = cachedName + ' (cached)'; }
+      if(senderAddress && cachedSender !== null){ senderAddress.value = cachedSender; }
+
+      if(senderAddress){
+        senderAddress.addEventListener('input', ()=>{
+          localStorage.setItem('sender_address_cache', senderAddress.value);
+        });
+      }
 
       form.addEventListener('submit', (e)=>{
         const hasFile = fileInput.files && fileInput.files.length > 0;
         const hasCached = !!csvText.value.trim();
+        if(senderAddress){
+          localStorage.setItem('sender_address_cache', senderAddress.value || '');
+        }
         if(!hasFile && !hasCached){
           e.preventDefault();
           alert(fileRequiredTxt);
