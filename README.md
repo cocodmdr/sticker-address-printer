@@ -10,8 +10,8 @@ A web app to generate printable PDF address labels from CSV for Avery sticker sh
 ### Homepage
 ![Homepage screenshot](docs/screenshots/home-dark.jpg)
 
-### Label rendering detail
-![PDF rendering detail](docs/screenshots/pdf-detail.jpg)
+### Preview with inline PDF
+![Preview with inline PDF](docs/screenshots/preview-pdf.jpg)
 
 ## Features
 - Upload CSV (with per-address `title_line_1` support)
