@@ -125,3 +125,9 @@ body.dark .section-title{color:#f8fafc;}
 .cookie-actions{display:flex;gap:.5rem;}
 
 .btn.secondary.active{border-color:#3b82f6;background:#dbeafe;color:#1e3a8a;font-weight:700;}
+
+.lang-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;}
+.file-picker{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;}
+textarea{resize:vertical;min-height:60px;}
+.form-panel{box-shadow:0 8px 24px rgba(15,23,42,.07);}
+body.dark .form-panel{box-shadow:0 8px 24px rgba(0,0,0,.3);}

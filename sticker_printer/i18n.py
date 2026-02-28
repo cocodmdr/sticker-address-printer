@@ -34,6 +34,7 @@ TRANSLATIONS = {
         "pitch_y": "Pitch Y (mm)",
         "origin_x": "Origin X (mm)",
         "origin_y": "Origin Y (mm)",
+        "sender_address": "Sender address (optional)",
 
         "preview_title": "Preview",
         "showing_labels": "Showing {count} label(s). Template:",
@@ -78,6 +79,7 @@ TRANSLATIONS = {
         "pitch_y": "Pas Y (mm)",
         "origin_x": "Origine X (mm)",
         "origin_y": "Origine Y (mm)",
+        "sender_address": "Indirizzo mittente (opzionale)",
 
         "preview_title": "Prévisualisation",
         "showing_labels": "Affichage de {count} étiquette(s). Modèle :",
@@ -123,6 +125,7 @@ TRANSLATIONS = {
         "pitch_y": "Paso Y (mm)",
         "origin_x": "Origen X (mm)",
         "origin_y": "Origen Y (mm)",
+        "sender_address": "Dirección remitente (opcional)",
 
         "preview_title": "Vista previa",
         "showing_labels": "Mostrando {count} etiqueta(s). Plantilla:",
@@ -167,6 +170,7 @@ TRANSLATIONS = {
         "pitch_y": "Abstand Y (mm)",
         "origin_x": "Ursprung X (mm)",
         "origin_y": "Ursprung Y (mm)",
+        "sender_address": "Absenderadresse (optional)",
 
         "preview_title": "Vorschau",
         "showing_labels": "Anzeige von {count} Etikett(en). Vorlage:",
@@ -255,6 +259,7 @@ TRANSLATIONS = {
         "pitch_y": "Steek Y (mm)",
         "origin_x": "Oorsprong X (mm)",
         "origin_y": "Oorsprong Y (mm)",
+        "sender_address": "Afzenderadres (optioneel)",
 
         "preview_title": "Voorbeeld",
         "showing_labels": "Weergave van {count} label(s). Sjabloon:",

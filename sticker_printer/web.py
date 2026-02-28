@@ -61,8 +61,8 @@ def _extract_form_and_addresses(req):
     right = float(req.form.get("right_margin", 0) or 0)
     bottom = float(req.form.get("bottom_margin", 0) or 0)
     left = float(req.form.get("left_margin", 0) or 0)
-    title_line_1 = (req.form.get("title_line_1", "") or "").strip()
-    return addresses, csv_text, template_spec, template_name, top, right, bottom, left, title_line_1
+    sender_address = (req.form.get("sender_address", "") or "").strip()
+    return addresses, csv_text, template_spec, template_name, top, right, bottom, left, sender_address
 
 
 def _lang_from_request(req):
@@ -89,7 +89,7 @@ def create_app():
     @app.post("/preview")
     def preview():
         try:
-            addresses, csv_text, template_spec, template_name, top, right, bottom, left, title_line_1 = _extract_form_and_addresses(request)
+            addresses, csv_text, template_spec, template_name, top, right, bottom, left, sender_address = _extract_form_and_addresses(request)
         except ValueError as e:
             lang = _lang_from_request(request)
             return (
@@ -113,13 +113,13 @@ def create_app():
             lang=lang,
             tr=lambda k: t(lang, k),
             tf=lambda k, **kw: tf(lang, k, **kw),
-            title_line_1=title_line_1,
+            sender_address=sender_address,
         )
 
     @app.post("/generate")
     def generate():
         try:
-            addresses, _csv_text, template_spec, template_name, top, right, bottom, left, title_line_1 = _extract_form_and_addresses(request)
+            addresses, _csv_text, template_spec, template_name, top, right, bottom, left, sender_address = _extract_form_and_addresses(request)
         except ValueError as e:
             lang = _lang_from_request(request)
             return (
@@ -130,7 +130,7 @@ def create_app():
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
             out = tmp.name
 
-        render_labels_pdf(addresses, template_spec, out, top, right, bottom, left, global_title_line=title_line_1)
+        render_labels_pdf(addresses, template_spec, out, top, right, bottom, left, sender_address=sender_address)
         ts = datetime.now().strftime("%Y%m%d-%H%M%S")
         filename = f"labels_{template_name}_{ts}.pdf"
         return send_file(out, as_attachment=True, download_name=filename, mimetype="application/pdf")
