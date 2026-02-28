@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300">
+  <rect width="900" height="300" fill="#f8fafc"/>
+  <g font-family="Arial, sans-serif" fill="#1e293b" font-size="20">
+    <text x="70" y="50">Templates preview</text>
+  </g>
+  <g>
+    <rect x="60" y="70" width="240" height="170" rx="10" fill="#fff" stroke="#cbd5e1"/>
+    <text x="80" y="100" font-family="Arial" font-size="16" fill="#0f172a">L7160 — 3 x 7</text>
+    <rect x="80" y="115" width="60" height="32" fill="#eff6ff" stroke="#bfdbfe"/>
+    <rect x="145" y="115" width="60" height="32" fill="#eff6ff" stroke="#bfdbfe"/>
+    <rect x="210" y="115" width="60" height="32" fill="#eff6ff" stroke="#bfdbfe"/>
+  </g>
+  <g>
+    <rect x="330" y="70" width="240" height="170" rx="10" fill="#fff" stroke="#cbd5e1"/>
+    <text x="350" y="100" font-family="Arial" font-size="16" fill="#0f172a">L7161 — 3 x 6</text>
+    <rect x="350" y="115" width="60" height="40" fill="#eef2ff" stroke="#c7d2fe"/>
+    <rect x="415" y="115" width="60" height="40" fill="#eef2ff" stroke="#c7d2fe"/>
+    <rect x="480" y="115" width="60" height="40" fill="#eef2ff" stroke="#c7d2fe"/>
+  </g>
+  <g>
+    <rect x="600" y="70" width="240" height="170" rx="10" fill="#fff" stroke="#cbd5e1"/>
+    <text x="620" y="100" font-family="Arial" font-size="16" fill="#0f172a">L7163 — 2 x 7</text>
+    <rect x="620" y="115" width="90" height="32" fill="#ecfeff" stroke="#a5f3fc"/>
+    <rect x="715" y="115" width="90" height="32" fill="#ecfeff" stroke="#a5f3fc"/>
+  </g>
+</svg>

@@ -1,23 +1,95 @@
 <!doctype html>
 <html>
-  <head><title>Address Sticker Printer</title></head>
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Address Sticker Printer</title>
+    <link rel="stylesheet" href="/static/styles.css"/>
+  </head>
   <body>
-    <h1>Address Sticker Printer</h1>
-    <p><a href="/sample.csv">Download sample CSV</a></p>
-    <form action="/preview" method="post" enctype="multipart/form-data">
-      <label>Avery template
-        <select name="template">
-          {% for code in templates %}
-          <option value="{{ code }}">{{ code }}</option>
-          {% endfor %}
-        </select>
-      </label><br/>
-      <label>Top margin (mm) <input name="top_margin" value="0"/></label><br/>
-      <label>Right margin (mm) <input name="right_margin" value="0"/></label><br/>
-      <label>Bottom margin (mm) <input name="bottom_margin" value="0"/></label><br/>
-      <label>Left margin (mm) <input name="left_margin" value="0"/></label><br/>
-      <label>CSV file <input type="file" name="csv_file"/></label><br/>
-      <button type="submit">Preview</button>
-    </form>
+    <div class="container">
+      <section class="hero">
+        <div>
+          <h1>Print address labels in minutes</h1>
+          <p>
+            Upload your CSV, pick your Avery sheet, tweak margins, preview the result,
+            and export a print-ready PDF for mailing campaigns.
+          </p>
+          <div class="badges">
+            <span class="badge">CSV upload</span>
+            <span class="badge">Avery templates</span>
+            <span class="badge">PDF export</span>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img src="/static/images/hero-labels.svg" alt="Address labels preview"/>
+        </div>
+      </section>
+
+      <h2 class="section-title">How it works</h2>
+      <div class="grid-3">
+        <article class="card">
+          <h3>1. Upload</h3>
+          <p>Import a CSV with title, name, surname, address and country.</p>
+        </article>
+        <article class="card">
+          <h3>2. Configure</h3>
+          <p>Select the Avery format and adjust margins to match your printer.</p>
+        </article>
+        <article class="card">
+          <h3>3. Print</h3>
+          <p>Preview labels, generate PDF, and print on your sticker sheets.</p>
+        </article>
+      </div>
+
+      <h2 class="section-title">Templates preview</h2>
+      <div class="hero-card" style="margin-bottom:1rem;">
+        <img src="/static/images/templates-preview.svg" alt="Avery templates preview"/>
+      </div>
+
+      <section class="form-panel">
+        <h2 style="margin-top:0;">Generate your labels</h2>
+        <p class="help-text">
+          Need an example? <a href="/sample.csv">Download sample CSV</a>
+        </p>
+
+        <form action="/preview" method="post" enctype="multipart/form-data">
+          <div class="form-grid">
+            <label>Avery template
+              <select name="template">
+                {% for code in templates %}
+                <option value="{{ code }}">{{ code }}</option>
+                {% endfor %}
+              </select>
+            </label>
+
+            <label>CSV file
+              <input type="file" name="csv_file" required/>
+            </label>
+
+            <label>Top margin (mm)
+              <input name="top_margin" value="0"/>
+            </label>
+
+            <label>Right margin (mm)
+              <input name="right_margin" value="0"/>
+            </label>
+
+            <label>Bottom margin (mm)
+              <input name="bottom_margin" value="0"/>
+            </label>
+
+            <label>Left margin (mm)
+              <input name="left_margin" value="0"/>
+            </label>
+          </div>
+
+          <div class="actions">
+            <button class="btn" type="submit">Preview labels</button>
+            <a class="btn secondary" href="/sample.csv">Download sample CSV</a>
+          </div>
+        </form>
+      </section>
+    </div>
   </body>
 </html>

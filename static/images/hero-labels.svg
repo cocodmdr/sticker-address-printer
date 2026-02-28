@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#dbeafe"/>
+      <stop offset="1" stop-color="#eff6ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="620" fill="url(#g)"/>
+  <rect x="100" y="70" width="700" height="480" rx="24" fill="white" stroke="#bfdbfe"/>
+  <g fill="#f8fafc" stroke="#cbd5e1">
+    <rect x="140" y="110" width="200" height="100" rx="12"/>
+    <rect x="350" y="110" width="200" height="100" rx="12"/>
+    <rect x="560" y="110" width="200" height="100" rx="12"/>
+    <rect x="140" y="220" width="200" height="100" rx="12"/>
+    <rect x="350" y="220" width="200" height="100" rx="12"/>
+    <rect x="560" y="220" width="200" height="100" rx="12"/>
+    <rect x="140" y="330" width="200" height="100" rx="12"/>
+    <rect x="350" y="330" width="200" height="100" rx="12"/>
+    <rect x="560" y="330" width="200" height="100" rx="12"/>
+  </g>
+  <g fill="#334155" font-family="Arial, sans-serif" font-size="18">
+    <text x="160" y="150">Dr Jane Doe</text>
+    <text x="160" y="175">1 Main Street</text>
+    <text x="160" y="198">NL</text>
+    <text x="370" y="260">Mr John Smith</text>
+    <text x="370" y="285">22 River Road</text>
+    <text x="370" y="308">FR</text>
+  </g>
+</svg>

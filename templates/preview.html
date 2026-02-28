@@ -1,27 +1,36 @@
 <!doctype html>
 <html>
-  <head><title>Preview - Address Sticker Printer</title></head>
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Preview - Address Sticker Printer</title>
+    <link rel="stylesheet" href="/static/styles.css"/>
+  </head>
   <body>
-    <h1>Preview</h1>
-    <p>Showing {{ preview_rows|length }} label(s).</p>
-    <ul>
-      {% for r in preview_rows %}
-      <li>
-        {{ [r.title, r.name, r.surname]|select|join(' ') }} — {{ r.address }} — {{ r.country }}
-      </li>
-      {% endfor %}
-    </ul>
+    <div class="container">
+      <section class="form-panel" style="margin-top:2rem;">
+        <h1 style="margin-top:0;">Preview</h1>
+        <p class="help-text">Showing {{ preview_rows|length }} label(s). Template: <strong>{{ template }}</strong></p>
 
-    <form action="/generate" method="post">
-      <input type="hidden" name="csv_text" value="{{ csv_text|e }}"/>
-      <input type="hidden" name="template" value="{{ template }}"/>
-      <input type="hidden" name="top_margin" value="{{ top_margin }}"/>
-      <input type="hidden" name="right_margin" value="{{ right_margin }}"/>
-      <input type="hidden" name="bottom_margin" value="{{ bottom_margin }}"/>
-      <input type="hidden" name="left_margin" value="{{ left_margin }}"/>
-      <button type="submit">Generate PDF</button>
-    </form>
+        <ul class="preview-list">
+          {% for r in preview_rows %}
+          <li>{{ [r.title, r.name, r.surname]|select|join(' ') }} — {{ r.address }} — {{ r.country }}</li>
+          {% endfor %}
+        </ul>
 
-    <p><a href="/">Back</a></p>
+        <form action="/generate" method="post">
+          <input type="hidden" name="csv_text" value="{{ csv_text|e }}"/>
+          <input type="hidden" name="template" value="{{ template }}"/>
+          <input type="hidden" name="top_margin" value="{{ top_margin }}"/>
+          <input type="hidden" name="right_margin" value="{{ right_margin }}"/>
+          <input type="hidden" name="bottom_margin" value="{{ bottom_margin }}"/>
+          <input type="hidden" name="left_margin" value="{{ left_margin }}"/>
+          <div class="actions">
+            <button class="btn" type="submit">Generate PDF</button>
+            <a class="btn secondary" href="/">Back</a>
+          </div>
+        </form>
+      </section>
+    </div>
   </body>
 </html>
