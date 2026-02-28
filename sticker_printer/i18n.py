@@ -80,8 +80,8 @@ TRANSLATIONS = {
         "pitch_y": "Pas Y (mm)",
         "origin_x": "Origine X (mm)",
         "origin_y": "Origine Y (mm)",
-        "sender_address": "Indirizzo mittente (opzionale)",
-        "font_family": "Carattere",
+        "sender_address": "Adresse expéditeur (optionnel)",
+        "font_family": "Police de caractères",
 
         "preview_title": "Prévisualisation",
         "showing_labels": "Affichage de {count} étiquette(s). Modèle :",
@@ -219,6 +219,8 @@ TRANSLATIONS = {
         "pitch_y": "Passo Y (mm)",
         "origin_x": "Origine X (mm)",
         "origin_y": "Origine Y (mm)",
+        "sender_address": "Indirizzo mittente (opzionale)",
+        "font_family": "Carattere",
 
         "preview_title": "Anteprima",
         "showing_labels": "Visualizzazione di {count} etichetta/e. Modello:",
