@@ -1,5 +1,6 @@
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
+from reportlab.pdfbase import pdfmetrics
 
 from .layout import avery_template, label_positions, validate_template_spec
 
@@ -46,7 +47,9 @@ def render_labels_pdf(addresses, template_spec_or_code, output_path, top_margin_
             # underline first sender line
             underline_y = y + h - 12
             c.setLineWidth(0.6)
-            c.line(x + 6, underline_y, min(x + 6 + (len(sender_first) * 3.8), x + w - 6), underline_y)
+            text_w = pdfmetrics.stringWidth(sender_first, font_family, 6.8)
+            end_x = min(x + 6 + text_w, x + w - 6)
+            c.line(x + 6, underline_y, end_x, underline_y)
             start_y = y + h - 26
         else:
             start_y = y + h - 14
