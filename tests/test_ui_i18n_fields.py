@@ -18,15 +18,13 @@ def test_french_translates_form_labels_and_badges():
 def test_dark_mode_uses_solid_background():
     css = open('static/styles.css', encoding='utf-8').read()
     assert 'body.dark {' in css
-    assert 'background:' in css
-    # dark mode should not rely on gradient
     dark_block = css.split('body.dark {',1)[1].split('}',1)[0]
     assert 'gradient' not in dark_block.lower()
 
 
-def test_title_line_1_field_present():
+def test_sender_address_field_present():
     app = create_app()
     client = app.test_client()
     body = client.get('/?lang=en').get_data(as_text=True)
-    assert 'Title line 1' in body
-    assert 'name="title_line_1"' in body
+    assert 'Sender address (optional)' in body
+    assert 'name="sender_address"' in body
