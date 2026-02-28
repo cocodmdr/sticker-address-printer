@@ -14,7 +14,7 @@
 
         <ul class="preview-list">
           {% for r in preview_rows %}
-          <li>{{ [r.title, r.name, r.surname]|select|join(' ') }} — {{ r.address }} — {{ r.country }}</li>
+          <li>{% if r.title_line_1 %}<strong>{{ r.title_line_1 }}</strong><br/>{% endif %}{{ [r.title, r.name, r.surname]|select|join(' ') }} — {{ r.address }} — {{ r.country }}</li>
           {% endfor %}
         </ul>
         <div class="form-panel" style="margin-top:1rem; padding:.6rem;">
