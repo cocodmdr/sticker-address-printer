@@ -122,20 +122,20 @@
         fileName.textContent = f.name;
         const text = await f.text();
         csvText.value = text;
-        localStorage.setItem('csv_text_cache', text);
-        localStorage.setItem('csv_name_cache', f.name);
+        sessionStorage.setItem('csv_text_cache', text);
+        sessionStorage.setItem('csv_name_cache', f.name);
       });
 
-      const cachedText = localStorage.getItem('csv_text_cache');
-      const cachedName = localStorage.getItem('csv_name_cache');
-      const cachedSender = localStorage.getItem('sender_address_cache');
+      const cachedText = sessionStorage.getItem('csv_text_cache');
+      const cachedName = sessionStorage.getItem('csv_name_cache');
+      const cachedSender = sessionStorage.getItem('sender_address_cache');
       if(cachedText){ csvText.value = cachedText; }
       if(cachedName){ fileName.textContent = cachedName + ' (cached)'; }
       if(senderAddress && cachedSender !== null){ senderAddress.value = cachedSender; }
 
       if(senderAddress){
         senderAddress.addEventListener('input', ()=>{
-          localStorage.setItem('sender_address_cache', senderAddress.value);
+          sessionStorage.setItem('sender_address_cache', senderAddress.value);
         });
       }
 
@@ -143,7 +143,7 @@
         const hasFile = fileInput.files && fileInput.files.length > 0;
         const hasCached = !!csvText.value.trim();
         if(senderAddress){
-          localStorage.setItem('sender_address_cache', senderAddress.value || '');
+          sessionStorage.setItem('sender_address_cache', senderAddress.value || '');
         }
         if(!hasFile && !hasCached){
           e.preventDefault();

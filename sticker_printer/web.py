@@ -1,19 +1,10 @@
 from datetime import datetime
 import os
 import base64
+import io
+
 from flask import Flask, render_template, request, send_file, Response
-import tempfile
-
-
-def _decode_csv_bytes(raw: bytes) -> str:
-    """Decode uploaded CSV with common encodings from spreadsheet exports."""
-    for enc in ("utf-8-sig", "utf-8", "cp1252", "latin-1"):
-        try:
-            return raw.decode(enc)
-        except UnicodeDecodeError:
-            continue
-    raise ValueError("Unable to decode CSV file. Please save it as UTF-8.")
-
+from werkzeug.exceptions import RequestEntityTooLarge
 
 from .csv_parser import parse_addresses
 from .layout import list_avery_templates
@@ -25,6 +16,28 @@ SAMPLE_CSV = """title_line_1,title,name,surname,address,country
 INVITATION,Dr,Jane,Doe,1 Main St,NL
 ,Mr,John,Smith,2 River Rd,FR
 """
+
+
+def _decode_csv_bytes(raw: bytes) -> str:
+    """Decode uploaded CSV with common encodings from spreadsheet exports."""
+    if raw.startswith(b"%PDF"):
+        raise ValueError("Please upload a CSV file (.csv), not a PDF")
+
+    decoded = None
+    for enc in ("utf-8-sig", "utf-8", "cp1252", "latin-1"):
+        try:
+            decoded = raw.decode(enc)
+            break
+        except UnicodeDecodeError:
+            continue
+
+    if decoded is None:
+        raise ValueError("Unable to decode CSV file. Please save it as UTF-8.")
+
+    if "\x00" in decoded:
+        raise ValueError("Invalid CSV content")
+
+    return decoded
 
 
 def _parse_template(req):
@@ -48,10 +61,23 @@ def _parse_template(req):
 def _extract_form_and_addresses(req):
     csv_text = ""
     if "csv_file" in req.files and req.files["csv_file"].filename:
-        filename = req.files["csv_file"].filename.lower()
+        uploaded = req.files["csv_file"]
+        filename = (uploaded.filename or "").lower()
         if not filename.endswith(".csv"):
             raise ValueError("Please upload a CSV file (.csv)")
-        raw = req.files["csv_file"].read()
+
+        if uploaded.mimetype and uploaded.mimetype not in (
+            "text/csv",
+            "application/csv",
+            "application/vnd.ms-excel",
+            "text/plain",
+        ):
+            raise ValueError("Unsupported file type. Please upload a CSV file")
+
+        raw = uploaded.read()
+        if not raw:
+            raise ValueError("CSV file is empty")
+
         csv_text = _decode_csv_bytes(raw)
     else:
         csv_text = req.form.get("csv_text", "")
@@ -73,12 +99,53 @@ def _lang_from_request(req):
 
 def create_app():
     app = Flask(__name__, template_folder="../templates", static_folder="../static", static_url_path="/static")
+    app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_UPLOAD_BYTES", "1048576"))  # 1MB default
     ga_measurement_id = os.getenv("GA_MEASUREMENT_ID", "").strip()
+
+    @app.after_request
+    def set_security_headers(resp):
+        csp = (
+            "default-src 'self'; "
+            "img-src 'self' data:; "
+            "style-src 'self' 'unsafe-inline'; "
+            "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; "
+            "connect-src 'self' https://www.google-analytics.com; "
+            "frame-src 'self' data:; "
+            "object-src 'self' data:; "
+            "base-uri 'self'; frame-ancestors 'self'"
+        )
+        resp.headers.setdefault("Content-Security-Policy", csp)
+        resp.headers.setdefault("Referrer-Policy", "no-referrer")
+        resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+        resp.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+        return resp
+
+    @app.errorhandler(RequestEntityTooLarge)
+    def file_too_large(_e):
+        lang = _lang_from_request(request)
+        return (
+            render_template(
+                "index.html",
+                templates=list_avery_templates(),
+                error="Uploaded file is too large. Please keep CSV files under 1MB.",
+                lang=lang,
+                tr=lambda k: t(lang, k),
+                ga_measurement_id=ga_measurement_id,
+            ),
+            413,
+        )
 
     @app.get("/")
     def index():
         lang = _lang_from_request(request)
-        return render_template("index.html", templates=list_avery_templates(), error=None, lang=lang, tr=lambda k: t(lang, k), ga_measurement_id=ga_measurement_id)
+        return render_template(
+            "index.html",
+            templates=list_avery_templates(),
+            error=None,
+            lang=lang,
+            tr=lambda k: t(lang, k),
+            ga_measurement_id=ga_measurement_id,
+        )
 
     @app.get("/sample.csv")
     def sample_csv():
@@ -95,16 +162,31 @@ def create_app():
         except ValueError as e:
             lang = _lang_from_request(request)
             return (
-                render_template("index.html", templates=list_avery_templates(), error=str(e), lang=lang, tr=lambda k: t(lang, k), ga_measurement_id=ga_measurement_id),
+                render_template(
+                    "index.html",
+                    templates=list_avery_templates(),
+                    error=str(e),
+                    lang=lang,
+                    tr=lambda k: t(lang, k),
+                    ga_measurement_id=ga_measurement_id,
+                ),
                 400,
             )
 
         preview_rows = addresses[:12]
-        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
-            preview_path = tmp.name
-        render_labels_pdf(addresses, template_spec, preview_path, top, right, bottom, left, sender_address=sender_address, font_family=font_family)
-        with open(preview_path, "rb") as f:
-            pdf_data_uri = "data:application/pdf;base64," + base64.b64encode(f.read()).decode("ascii")
+        pdf_buffer = io.BytesIO()
+        render_labels_pdf(
+            addresses,
+            template_spec,
+            pdf_buffer,
+            top,
+            right,
+            bottom,
+            left,
+            sender_address=sender_address,
+            font_family=font_family,
+        )
+        pdf_data_uri = "data:application/pdf;base64," + base64.b64encode(pdf_buffer.getvalue()).decode("ascii")
 
         lang = _lang_from_request(request)
         return render_template(
@@ -133,17 +215,34 @@ def create_app():
         except ValueError as e:
             lang = _lang_from_request(request)
             return (
-                render_template("index.html", templates=list_avery_templates(), error=str(e), lang=lang, tr=lambda k: t(lang, k), ga_measurement_id=ga_measurement_id),
+                render_template(
+                    "index.html",
+                    templates=list_avery_templates(),
+                    error=str(e),
+                    lang=lang,
+                    tr=lambda k: t(lang, k),
+                    ga_measurement_id=ga_measurement_id,
+                ),
                 400,
             )
 
-        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
-            out = tmp.name
+        pdf_buffer = io.BytesIO()
+        render_labels_pdf(
+            addresses,
+            template_spec,
+            pdf_buffer,
+            top,
+            right,
+            bottom,
+            left,
+            sender_address=sender_address,
+            font_family=font_family,
+        )
+        pdf_buffer.seek(0)
 
-        render_labels_pdf(addresses, template_spec, out, top, right, bottom, left, sender_address=sender_address, font_family=font_family)
         ts = datetime.now().strftime("%Y%m%d-%H%M%S")
         filename = f"labels_{template_name}_{ts}.pdf"
-        return send_file(out, as_attachment=True, download_name=filename, mimetype="application/pdf")
+        return send_file(pdf_buffer, as_attachment=True, download_name=filename, mimetype="application/pdf")
 
     return app
 
