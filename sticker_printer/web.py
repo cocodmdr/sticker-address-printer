@@ -43,31 +43,43 @@ def _lang_from_request(req) -> str:
     return normalize_lang(req.values.get("lang") or req.args.get("lang"))
 
 
-def _decode_csv_bytes(raw: bytes) -> str:
+def _raise_if_pdf(raw: bytes):
     if raw.startswith(b"%PDF"):
         raise ValueError("Please upload a CSV file (.csv), not a PDF")
+
+
+def _raise_if_invalid_text(text: str):
+    if "\x00" in text:
+        raise ValueError("Invalid CSV content")
+
+
+def _decode_with_encoding(raw: bytes, enc: str) -> str | None:
+    try:
+        return raw.decode(enc)
+    except UnicodeDecodeError:
+        return None
+
+
+def _decode_csv_bytes(raw: bytes) -> str:
+    _raise_if_pdf(raw)
     for enc in ("utf-8-sig", "utf-8", "cp1252", "latin-1"):
-        try:
-            text = raw.decode(enc)
-            if "\x00" in text:
-                raise ValueError("Invalid CSV content")
+        text = _decode_with_encoding(raw, enc)
+        if text is not None:
+            _raise_if_invalid_text(text)
             return text
-        except UnicodeDecodeError:
-            continue
     raise ValueError("Unable to decode CSV file. Please save it as UTF-8.")
 
 
+def _as_int(req, key: str) -> int:
+    return int(req.form.get(key, "0") or 0)
+
+
+def _as_float(req, key: str, default: float = 0.0) -> float:
+    return float(req.form.get(key, default) or default)
+
+
 def _parse_custom_template(req) -> dict:
-    return {
-        "rows": int(req.form.get("custom_rows", "0") or 0),
-        "cols": int(req.form.get("custom_cols", "0") or 0),
-        "label_width_mm": float(req.form.get("custom_label_width_mm", "0") or 0),
-        "label_height_mm": float(req.form.get("custom_label_height_mm", "0") or 0),
-        "pitch_x_mm": float(req.form.get("custom_pitch_x_mm", "0") or 0),
-        "pitch_y_mm": float(req.form.get("custom_pitch_y_mm", "0") or 0),
-        "origin_x_mm": float(req.form.get("custom_origin_x_mm", "0") or 0),
-        "origin_y_mm": float(req.form.get("custom_origin_y_mm", "0") or 0),
-    }
+    return {"rows": _as_int(req, "custom_rows"), "cols": _as_int(req, "custom_cols"), "label_width_mm": _as_float(req, "custom_label_width_mm"), "label_height_mm": _as_float(req, "custom_label_height_mm"), "pitch_x_mm": _as_float(req, "custom_pitch_x_mm"), "pitch_y_mm": _as_float(req, "custom_pitch_y_mm"), "origin_x_mm": _as_float(req, "custom_origin_x_mm"), "origin_y_mm": _as_float(req, "custom_origin_y_mm")}
 
 
 def _parse_template(req) -> tuple[dict | str, str]:
@@ -75,86 +87,94 @@ def _parse_template(req) -> tuple[dict | str, str]:
     return (_parse_custom_template(req), "CUSTOM") if template == "CUSTOM" else (template, template)
 
 
-def _extract_csv_text(req) -> str:
-    uploaded = req.files.get("csv_file")
-    if not uploaded or not uploaded.filename:
-        return req.form.get("csv_text", "")
+def _is_valid_csv_upload(uploaded) -> bool:
+    return bool(uploaded and uploaded.filename)
 
-    filename = (uploaded.filename or "").lower()
-    if not filename.endswith(".csv"):
+
+def _validate_csv_name(uploaded):
+    if not (uploaded.filename or "").lower().endswith(".csv"):
         raise ValueError("Please upload a CSV file (.csv)")
+
+
+def _validate_csv_mime(uploaded):
     if uploaded.mimetype and uploaded.mimetype not in ALLOWED_CSV_MIME_TYPES:
         raise ValueError("Unsupported file type. Please upload a CSV file")
 
+
+def _read_non_empty(uploaded) -> bytes:
     raw = uploaded.read()
     if not raw:
         raise ValueError("CSV file is empty")
-    return _decode_csv_bytes(raw)
+    return raw
 
 
-def _parse_float(req, key: str, default: float = 0.0) -> float:
-    return float(req.form.get(key, default) or default)
+def _extract_csv_text(req) -> str:
+    uploaded = req.files.get("csv_file")
+    if not _is_valid_csv_upload(uploaded):
+        return req.form.get("csv_text", "")
+    _validate_csv_name(uploaded)
+    _validate_csv_mime(uploaded)
+    return _decode_csv_bytes(_read_non_empty(uploaded))
+
+
+def _sender_address(req) -> str:
+    return (req.form.get("sender_address", "") or "").strip()
+
+
+def _font_family(req) -> str:
+    return (req.form.get("font_family", "Helvetica") or "Helvetica").strip()
 
 
 def _extract_form(req) -> ParsedForm:
     csv_text = _extract_csv_text(req)
     template_spec, template_name = _parse_template(req)
-    return ParsedForm(
-        addresses=parse_addresses(csv_text),
-        csv_text=csv_text,
-        template_spec=template_spec,
-        template_name=template_name,
-        top=_parse_float(req, "top_margin"),
-        right=_parse_float(req, "right_margin"),
-        bottom=_parse_float(req, "bottom_margin"),
-        left=_parse_float(req, "left_margin"),
-        sender_address=(req.form.get("sender_address", "") or "").strip(),
-        font_family=(req.form.get("font_family", "Helvetica") or "Helvetica").strip(),
-    )
+    return ParsedForm(parse_addresses(csv_text), csv_text, template_spec, template_name, _as_float(req, "top_margin"), _as_float(req, "right_margin"), _as_float(req, "bottom_margin"), _as_float(req, "left_margin"), _sender_address(req), _font_family(req))
 
 
 def _make_pdf_buffer(form: ParsedForm) -> io.BytesIO:
     pdf_buffer = io.BytesIO()
-    render_labels_pdf(
-        form.addresses,
-        form.template_spec,
-        pdf_buffer,
-        form.top,
-        form.right,
-        form.bottom,
-        form.left,
-        sender_address=form.sender_address,
-        font_family=form.font_family,
-    )
+    render_labels_pdf(form.addresses, form.template_spec, pdf_buffer, form.top, form.right, form.bottom, form.left, sender_address=form.sender_address, font_family=form.font_family)
     return pdf_buffer
 
 
+def _pdf_data_uri(form: ParsedForm) -> str:
+    return "data:application/pdf;base64," + base64.b64encode(_make_pdf_buffer(form).getvalue()).decode("ascii")
+
+
+def _template_ctx(lang: str, ga_measurement_id: str) -> dict:
+    return {"templates": list_avery_templates(), "lang": lang, "tr": lambda k: t(lang, k), "ga_measurement_id": ga_measurement_id}
+
+
 def _render_index(lang: str, ga_measurement_id: str, error: str | None = None, status: int = 200):
+    ctx = _template_ctx(lang, ga_measurement_id)
+    return render_template("index.html", error=error, **ctx), status
+
+
+def _security_csp() -> str:
     return (
-        render_template(
-            "index.html",
-            templates=list_avery_templates(),
-            error=error,
-            lang=lang,
-            tr=lambda k: t(lang, k),
-            ga_measurement_id=ga_measurement_id,
-        ),
-        status,
-    )
-
-
-def _set_security_headers(resp):
-    csp = (
         "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; "
         "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; "
         "connect-src 'self' https://www.google-analytics.com; frame-src 'self' data:; "
         "object-src 'self' data:; base-uri 'self'; frame-ancestors 'self'"
     )
-    resp.headers.setdefault("Content-Security-Policy", csp)
+
+
+def _set_security_headers(resp):
+    resp.headers.setdefault("Content-Security-Policy", _security_csp())
     resp.headers.setdefault("Referrer-Policy", "no-referrer")
     resp.headers.setdefault("X-Content-Type-Options", "nosniff")
     resp.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
     return resp
+
+
+def _preview_context(form: ParsedForm, lang: str, ga_measurement_id: str) -> dict:
+    base = _template_ctx(lang, ga_measurement_id)
+    base.update({"preview_rows": form.addresses[:12], "csv_text": form.csv_text, "template": form.template_name, "top_margin": form.top, "right_margin": form.right, "bottom_margin": form.bottom, "left_margin": form.left, "template_spec": form.template_spec if isinstance(form.template_spec, dict) else None, "tf": lambda k, **kw: tf(lang, k, **kw), "sender_address": form.sender_address, "font_family": form.font_family, "pdf_data_uri": _pdf_data_uri(form)})
+    return base
+
+
+def _pdf_download_name(template_name: str) -> str:
+    return f"labels_{template_name}_{datetime.now().strftime('%Y%m%d-%H%M%S')}.pdf"
 
 
 def create_app():
@@ -168,13 +188,11 @@ def create_app():
 
     @app.errorhandler(RequestEntityTooLarge)
     def file_too_large(_e):
-        lang = _lang_from_request(request)
-        return _render_index(lang, ga_measurement_id, "Uploaded file is too large. Please keep CSV files under 1MB.", 413)
+        return _render_index(_lang_from_request(request), ga_measurement_id, "Uploaded file is too large. Please keep CSV files under 1MB.", 413)
 
     @app.get("/")
     def index():
-        lang = _lang_from_request(request)
-        return _render_index(lang, ga_measurement_id)[0]
+        return _render_index(_lang_from_request(request), ga_measurement_id)[0]
 
     @app.get("/sample.csv")
     def sample_csv():
@@ -187,26 +205,7 @@ def create_app():
             form = _extract_form(request)
         except ValueError as e:
             return _render_index(lang, ga_measurement_id, str(e), 400)
-
-        pdf_data_uri = "data:application/pdf;base64," + base64.b64encode(_make_pdf_buffer(form).getvalue()).decode("ascii")
-        return render_template(
-            "preview.html",
-            preview_rows=form.addresses[:12],
-            csv_text=form.csv_text,
-            template=form.template_name,
-            top_margin=form.top,
-            right_margin=form.right,
-            bottom_margin=form.bottom,
-            left_margin=form.left,
-            template_spec=form.template_spec if isinstance(form.template_spec, dict) else None,
-            templates=list_avery_templates(),
-            lang=lang,
-            tr=lambda k: t(lang, k),
-            tf=lambda k, **kw: tf(lang, k, **kw),
-            sender_address=form.sender_address,
-            font_family=form.font_family,
-            pdf_data_uri=pdf_data_uri,
-        )
+        return render_template("preview.html", **_preview_context(form, lang, ga_measurement_id))
 
     @app.post("/generate")
     def generate():
@@ -215,12 +214,9 @@ def create_app():
             form = _extract_form(request)
         except ValueError as e:
             return _render_index(lang, ga_measurement_id, str(e), 400)
-
         pdf_buffer = _make_pdf_buffer(form)
         pdf_buffer.seek(0)
-        ts = datetime.now().strftime("%Y%m%d-%H%M%S")
-        filename = f"labels_{form.template_name}_{ts}.pdf"
-        return send_file(pdf_buffer, as_attachment=True, download_name=filename, mimetype="application/pdf")
+        return send_file(pdf_buffer, as_attachment=True, download_name=_pdf_download_name(form.template_name), mimetype="application/pdf")
 
     return app
 
