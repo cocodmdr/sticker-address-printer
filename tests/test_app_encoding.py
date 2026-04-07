@@ -16,6 +16,7 @@ def test_preview_accepts_cp1252_encoded_csv():
         "left_margin": "0",
         "csv_file": (io.BytesIO(csv_text.encode("cp1252")), "addresses.csv"),
     }
-    response = client.post("/preview", data=data, content_type="multipart/form-data")
+    response = client.post("/preview-json", data=data, content_type="multipart/form-data")
     assert response.status_code == 200
-    assert "Preview" in response.get_data(as_text=True)
+    data = response.get_json()
+    assert "pdf_data_uri" in data

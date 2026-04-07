@@ -9,11 +9,11 @@ def test_preview_page_is_translated_in_french():
         'template': 'L7160',
         'csv_file': (__import__('io').BytesIO(b'title,name,surname,address,country\nDr,Jane,Doe,1 Main St,NL\n'), 'a.csv')
     }
-    res = client.post('/preview', data=data, content_type='multipart/form-data')
-    body = res.get_data(as_text=True)
+    res = client.post('/preview-json', data=data, content_type='multipart/form-data')
+    result = res.get_json()
     assert res.status_code == 200
-    assert 'Prévisualisation' in body
-    assert 'Retour' in body
+    assert 'Affichage de' in result['preview_info']
+    assert 'pdf_data_uri' in result
 
 
 def test_selected_language_button_is_active():

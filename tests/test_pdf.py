@@ -10,6 +10,6 @@ def test_render_pdf(tmp_path: Path):
         {"title": "", "name": "John", "surname": "Smith", "address": "2 Main St", "country": "FR"},
     ]
     out = tmp_path / "labels.pdf"
-    render_labels_pdf(addresses, "L7160", str(out), 0, 0, 0, 0)
+    render_labels_pdf(addresses, "L7160", str(out), top_margin_mm=0, left_margin_mm=0)
     reader = PdfReader(str(out))
     assert len(reader.pages) == 1

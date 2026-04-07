@@ -23,11 +23,11 @@ def test_preview_rejects_non_csv_upload_with_clear_message():
         "template": "L7160",
         "csv_file": (io.BytesIO(b"%PDF-1.4 fake"), "document.pdf"),
     }
-    response = client.post("/preview", data=data, content_type="multipart/form-data")
-    body = response.get_data(as_text=True)
+    response = client.post("/preview-json", data=data, content_type="multipart/form-data")
+    data = response.get_json()
 
     assert response.status_code == 400
-    assert "Please upload a CSV file" in body
+    assert "Please upload a CSV file" in data["error"]
 
 
 def test_generate_uses_timestamped_filename_with_template():

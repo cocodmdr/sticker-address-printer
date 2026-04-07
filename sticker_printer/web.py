@@ -183,10 +183,20 @@ def _set_security_headers(resp):
     return resp
 
 
+def _cache_form_to_session(form: ParsedForm):
+    session['csv_text'] = form.csv_text
+    session['template'] = form.template_name
+    session['template_spec'] = form.template_spec
+    session['top_margin'] = form.top
+    session['left_margin'] = form.left
+    session['sender_address'] = form.sender_address
+    session['font_family'] = form.font_family
+    session['show_boxes'] = form.show_boxes
+
+
 def _preview_context(form: ParsedForm, lang: str, ga_measurement_id: str) -> dict:
     base = _template_ctx(lang, ga_measurement_id)
     base.update({"preview_rows": form.addresses[:12], "csv_text": form.csv_text, "template": form.template_name, "top_margin": form.top, "left_margin": form.left, "template_spec": form.template_spec if isinstance(form.template_spec, dict) else None, "tf": lambda k, **kw: tf(lang, k, **kw), "sender_address": form.sender_address, "font_family": form.font_family, "show_boxes": form.show_boxes, "pdf_data_uri": _pdf_data_uri(form)})
-    return base
 
 
 def _pdf_download_name(template_name: str) -> str:
@@ -215,23 +225,17 @@ def create_app():
     def sample_csv():
         return Response(SAMPLE_CSV, mimetype="text/csv", headers={"Content-Disposition": "attachment; filename=sample_addresses.csv"})
 
-    @app.post("/preview")
-    def preview():
+
+    @app.post("/preview-json")
+    def preview_json():
         lang = _lang_from_request(request)
         try:
             form = _extract_form(request)
         except ValueError as e:
-            return _render_index(lang, ga_measurement_id, str(e), 400)
-        # Cache form values in session
-        session['csv_text'] = form.csv_text
-        session['template'] = form.template_name
-        session['template_spec'] = form.template_spec
-        session['top_margin'] = form.top
-        session['left_margin'] = form.left
-        session['sender_address'] = form.sender_address
-        session['font_family'] = form.font_family
-        session['show_boxes'] = form.show_boxes
-        return render_template("preview.html", **_preview_context(form, lang, ga_measurement_id))
+            return {"error": str(e)}, 400
+        _cache_form_to_session(form)
+        preview_info = tf(lang, 'showing_labels', count=len(form.addresses[:12])) + f' <strong>{form.template_name}</strong>'
+        return {"pdf_data_uri": _pdf_data_uri(form), "preview_info": preview_info}
 
     @app.post("/generate")
     def generate():

@@ -87,22 +87,18 @@ def _box_from_mm(template: dict, x_mm: float, y_mm: float) -> tuple[float, float
     return mm_to_pt(x_mm), mm_to_pt(y_mm), mm_to_pt(float(template["label_width_mm"])), mm_to_pt(float(template["label_height_mm"]))
 
 
-def label_positions(template: dict, top_margin_mm=0.0, right_margin_mm=0.0, bottom_margin_mm=0.0, left_margin_mm=0.0):
-    boxes = []
-    # Calculate automatic centering offset to balance left and right margins
+def _center_offset_mm(template: dict) -> float:
     origin_x = float(template["origin_x_mm"])
     cols = int(template["cols"])
     pitch_x = float(template["pitch_x_mm"])
     label_width = float(template["label_width_mm"])
-    
-    # Natural margins on A4 page
     left_natural = origin_x
     right_natural = A4_WIDTH_MM - (origin_x + (cols - 1) * pitch_x + label_width)
-    # Center the labels by applying offset to both sides
-    center_offset = (left_natural - right_natural) / 2
-    
-    for r in range(int(template["rows"])):
-        for c in range(int(template["cols"])):
-            x_mm, y_mm = _cell_xy_mm(template, r, c, top_margin_mm, right_margin_mm, bottom_margin_mm, left_margin_mm - center_offset)
-            boxes.append(_box_from_mm(template, x_mm, y_mm))
-    return boxes
+    return (left_natural - right_natural) / 2
+
+
+def label_positions(template: dict, top_margin_mm=0.0, right_margin_mm=0.0, bottom_margin_mm=0.0, left_margin_mm=0.0):
+    center_offset = _center_offset_mm(template)
+    return [_box_from_mm(template, *_cell_xy_mm(template, r, c, top_margin_mm, right_margin_mm, bottom_margin_mm, left_margin_mm - center_offset))
+            for r in range(int(template["rows"]))
+            for c in range(int(template["cols"]))]

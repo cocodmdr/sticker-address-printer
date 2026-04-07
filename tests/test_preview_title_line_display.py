@@ -13,8 +13,9 @@ def test_preview_list_displays_title_line_1_when_present():
         'font_family': 'Helvetica',
         'csv_file': (io.BytesIO(b'title_line_1,title,name,surname,address,country\nINVITATION,Dr,Jane,Doe,1 Main St,NL\n,Mr,John,Smith,2 River Rd,FR\n'), 'a.csv')
     }
-    res = client.post('/preview', data=data, content_type='multipart/form-data')
-    body = res.get_data(as_text=True)
+    res = client.post('/preview-json', data=data, content_type='multipart/form-data')
+    result = res.get_json()
 
     assert res.status_code == 200
-    assert 'INVITATION - Dr Jane Doe — 1 Main St — NL' in body
+    assert 'pdf_data_uri' in result
+    assert result['pdf_data_uri'].startswith('data:application/pdf;base64,')

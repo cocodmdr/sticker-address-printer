@@ -43,9 +43,11 @@ def test_preview_endpoint_renders_html_preview():
         "left_margin": "0",
         "csv_file": (io.BytesIO(b"title,name,surname,address,country\nDr,Jane,Doe,1 Main St,NL\n"), "addresses.csv"),
     }
-    response = client.post("/preview", data=data, content_type="multipart/form-data")
+    response = client.post("/preview-json", data=data, content_type="multipart/form-data")
     assert response.status_code == 200
-    assert "Preview" in response.get_data(as_text=True)
+    data = response.get_json()
+    assert "pdf_data_uri" in data
+    assert data["pdf_data_uri"].startswith("data:application/pdf;base64,")
 
 
 def test_sample_csv_download():
