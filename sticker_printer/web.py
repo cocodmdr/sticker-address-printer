@@ -4,7 +4,7 @@ import base64
 import io
 import os
 
-from flask import Flask, Response, render_template, request, send_file
+from flask import Flask, Response, render_template, request, send_file, session
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from .csv_parser import parse_addresses
@@ -142,7 +142,21 @@ def _pdf_data_uri(form: ParsedForm) -> str:
 
 
 def _template_ctx(lang: str, ga_measurement_id: str) -> dict:
-    return {"templates": list_avery_templates(), "lang": lang, "tr": lambda k: t(lang, k), "ga_measurement_id": ga_measurement_id}
+    return {
+        "templates": list_avery_templates(),
+        "lang": lang,
+        "tr": lambda k: t(lang, k),
+        "ga_measurement_id": ga_measurement_id,
+        "cached_csv_text": session.get('csv_text', ''),
+        "cached_template": session.get('template', 'L7160'),
+        "cached_template_spec": session.get('template_spec'),
+        "cached_top_margin": session.get('top_margin', 0.0),
+        "cached_right_margin": session.get('right_margin', 0.0),
+        "cached_bottom_margin": session.get('bottom_margin', 0.0),
+        "cached_left_margin": session.get('left_margin', 0.0),
+        "cached_sender_address": session.get('sender_address', ''),
+        "cached_font_family": session.get('font_family', 'Helvetica'),
+    }
 
 
 def _render_index(lang: str, ga_measurement_id: str, error: str | None = None, status: int = 200):
@@ -180,6 +194,7 @@ def _pdf_download_name(template_name: str) -> str:
 def create_app():
     app = Flask(__name__, template_folder="../templates", static_folder="../static", static_url_path="/static")
     app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_UPLOAD_BYTES", "1048576"))
+    app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key")
     ga_measurement_id = os.getenv("GA_MEASUREMENT_ID", "").strip()
 
     @app.after_request
@@ -205,6 +220,16 @@ def create_app():
             form = _extract_form(request)
         except ValueError as e:
             return _render_index(lang, ga_measurement_id, str(e), 400)
+        # Cache form values in session
+        session['csv_text'] = form.csv_text
+        session['template'] = form.template_name
+        session['template_spec'] = form.template_spec
+        session['top_margin'] = form.top
+        session['right_margin'] = form.right
+        session['bottom_margin'] = form.bottom
+        session['left_margin'] = form.left
+        session['sender_address'] = form.sender_address
+        session['font_family'] = form.font_family
         return render_template("preview.html", **_preview_context(form, lang, ga_measurement_id))
 
     @app.post("/generate")

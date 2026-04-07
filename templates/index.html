@@ -44,12 +44,12 @@
 
         <form id="label-form" action="/preview" method="post" enctype="multipart/form-data">
           <input type="hidden" name="lang" value="{{ lang }}"/>
-          <input type="hidden" name="csv_text" id="csv_text" value=""/>
+          <input type="hidden" name="csv_text" id="csv_text" value="{{ cached_csv_text }}"/>
           <div class="form-grid">
             <label>{{ tr('avery_template') }}
               <select name="template" id="template-select" onchange="toggleCustomFields()">
-                {% for code in templates %}<option value="{{ code }}">{{ code }}</option>{% endfor %}
-                <option value="CUSTOM">CUSTOM</option>
+                {% for code in templates %}<option value="{{ code }}" {% if cached_template == code %}selected{% endif %}>{{ code }}</option>{% endfor %}
+                <option value="CUSTOM" {% if cached_template == 'CUSTOM' %}selected{% endif %}>CUSTOM</option>
               </select>
             </label>
             <label>{{ tr('csv_file') }}
@@ -59,29 +59,29 @@
                 <span id="file-name" class="help-text">{{ tr('no_file_selected') }}</span>
               </div>
             </label>
-            <label>{{ tr('sender_address') }}<textarea name="sender_address" rows="1" placeholder="exp: Tyrex, 12 Dino Street, The Hague, The Netherlands"></textarea></label>
+            <label>{{ tr('sender_address') }}<textarea name="sender_address" rows="1" placeholder="exp: Tyrex, 12 Dino Street, The Hague, The Netherlands">{{ cached_sender_address }}</textarea></label>
             <label>{{ tr('font_family') }}
               <select name="font_family">
-                <option value="Helvetica">Helvetica</option>
-                <option value="Times-Roman">Times New Roman</option>
-                <option value="Courier">Courier</option>
+                <option value="Helvetica" {% if cached_font_family == 'Helvetica' %}selected{% endif %}>Helvetica</option>
+                <option value="Times-Roman" {% if cached_font_family == 'Times-Roman' %}selected{% endif %}>Times New Roman</option>
+                <option value="Courier" {% if cached_font_family == 'Courier' %}selected{% endif %}>Courier</option>
               </select>
             </label>
-            <label>{{ tr('top_margin') }}<input name="top_margin" value="0"/></label>
-            <label>{{ tr('right_margin') }}<input name="right_margin" value="0"/></label>
-            <label>{{ tr('bottom_margin') }}<input name="bottom_margin" value="0"/></label>
-            <label>{{ tr('left_margin') }}<input name="left_margin" value="0"/></label>
+            <label>{{ tr('top_margin') }}<input name="top_margin" value="{{ cached_top_margin }}"/></label>
+            <label>{{ tr('right_margin') }}<input name="right_margin" value="{{ cached_right_margin }}"/></label>
+            <label>{{ tr('bottom_margin') }}<input name="bottom_margin" value="{{ cached_bottom_margin }}"/></label>
+            <label>{{ tr('left_margin') }}<input name="left_margin" value="{{ cached_left_margin }}"/></label>
           </div>
 
-          <div id="custom-fields" class="form-grid" style="display:none; margin-top:.8rem;">
-            <label>{{ tr('rows') }} <input name="custom_rows" value="7"/></label>
-            <label>{{ tr('columns') }} <input name="custom_cols" value="3"/></label>
-            <label>{{ tr('label_width') }} <input name="custom_label_width_mm" value="63.5"/></label>
-            <label>{{ tr('label_height') }} <input name="custom_label_height_mm" value="38.1"/></label>
-            <label>{{ tr('pitch_x') }} <input name="custom_pitch_x_mm" value="66.7"/></label>
-            <label>{{ tr('pitch_y') }} <input name="custom_pitch_y_mm" value="38.1"/></label>
-            <label>{{ tr('origin_x') }} <input name="custom_origin_x_mm" value="7.1"/></label>
-            <label>{{ tr('origin_y') }} <input name="custom_origin_y_mm" value="15.1"/></label>
+          <div id="custom-fields" class="form-grid" {% if cached_template == 'CUSTOM' %}style="margin-top:.8rem;"{% else %}style="display:none; margin-top:.8rem;"{% endif %}>
+            <label>{{ tr('rows') }} <input name="custom_rows" value="{{ cached_template_spec.rows if cached_template_spec else 7 }}"/></label>
+            <label>{{ tr('columns') }} <input name="custom_cols" value="{{ cached_template_spec.cols if cached_template_spec else 3 }}"/></label>
+            <label>{{ tr('label_width') }} <input name="custom_label_width_mm" value="{{ cached_template_spec.label_width_mm if cached_template_spec else 63.5 }}"/></label>
+            <label>{{ tr('label_height') }} <input name="custom_label_height_mm" value="{{ cached_template_spec.label_height_mm if cached_template_spec else 38.1 }}"/></label>
+            <label>{{ tr('pitch_x') }} <input name="custom_pitch_x_mm" value="{{ cached_template_spec.pitch_x_mm if cached_template_spec else 66.7 }}"/></label>
+            <label>{{ tr('pitch_y') }} <input name="custom_pitch_y_mm" value="{{ cached_template_spec.pitch_y_mm if cached_template_spec else 38.1 }}"/></label>
+            <label>{{ tr('origin_x') }} <input name="custom_origin_x_mm" value="{{ cached_template_spec.origin_x_mm if cached_template_spec else 7.1 }}"/></label>
+            <label>{{ tr('origin_y') }} <input name="custom_origin_y_mm" value="{{ cached_template_spec.origin_y_mm if cached_template_spec else 15.1 }}"/></label>
           </div>
 
           <div class="actions"><button class="btn" type="submit">{{ tr('preview_labels') }}</button></div>

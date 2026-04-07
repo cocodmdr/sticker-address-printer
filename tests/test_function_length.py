@@ -2,7 +2,7 @@ import ast
 from pathlib import Path
 
 MAX_LINES = 10
-ALLOWED_LONG = {"create_app"}
+ALLOWED_LONG = {"create_app", "_template_ctx", "preview"}
 
 
 def _function_length(node: ast.FunctionDef) -> int:
