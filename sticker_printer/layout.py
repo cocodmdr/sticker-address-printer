@@ -28,8 +28,8 @@ AVERY_TEMPLATES = {
         "label_height_mm": 38.1,
         "pitch_x_mm": 101.6,
         "pitch_y_mm": 38.1,
-        "origin_x_mm": 8.5,
-        "origin_y_mm": 15.1,
+        "origin_x_mm": 7.0,
+        "origin_y_mm": 15.0,
     },
 }
 
