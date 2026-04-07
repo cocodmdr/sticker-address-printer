@@ -11,7 +11,7 @@ def _name_line(row: dict) -> str:
 
 
 def _format_address(row: dict) -> list[str]:
-    lines = [(row.get("title_line_1", "") or "").strip(), _name_line(row), row.get("address", ""), row.get("country", "")]
+    lines = [(row.get("title_line_1", "") or "").strip(), _name_line(row), row.get("address", ""), row.get("city_zip", ""), row.get("country", "")]
     return [line for line in lines if line]
 
 

@@ -34,6 +34,7 @@ Required:
 Optional:
 - `title`
 - `title_line_1`
+- `city_zip`
 
 ## Run locally
 ```bash

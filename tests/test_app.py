@@ -55,4 +55,4 @@ def test_sample_csv_download():
     response = client.get("/sample.csv")
     assert response.status_code == 200
     assert response.mimetype == "text/csv"
-    assert "title,name,surname,address,country" in response.get_data(as_text=True)
+    assert "title_line_1,title,name,surname,address,city_zip,country" in response.get_data(as_text=True)

@@ -12,9 +12,9 @@ from .i18n import normalize_lang, t, tf
 from .layout import list_avery_templates
 from .pdf_render import render_labels_pdf
 
-SAMPLE_CSV = """title_line_1,title,name,surname,address,country
-INVITATION,Dr,Jane,Doe,1 Main St,NL
-,Mr,John,Smith,2 River Rd,FR
+SAMPLE_CSV = """title_line_1,title,name,surname,address,city_zip,country
+INVITATION,Dr,Jane,Doe,1 Main St,Anytown 12345,NL
+,Mr,John,Smith,2 River Rd,Somewhere 67890,FR
 """
 
 ALLOWED_CSV_MIME_TYPES = {
