@@ -1,7 +1,7 @@
 import csv
 from io import StringIO
 
-REQUIRED_FIELDS = {"name", "surname", "address", "country"}
+REQUIRED_FIELDS = {"name", "address", "country"}
 
 
 def _csv_reader(csv_text: str):

@@ -20,8 +20,7 @@
 
       <ul class="preview-list">
         {% for r in preview_rows %}
-        <li>{% if r.title_line_1 %}{{ r.title_line_1 }} - {% endif %}{{ [r.title, r.name, r.surname]|select|join(' ') }}
-          — {{ r.address }}{% if r.city_zip %} {{ r.city_zip }}{% endif %} — {{ r.country }}</li>
+        <li>{% if r.title_line_1 %}{{ r.title_line_1 }} - {% endif %}{{ [r.title, r.name, r.surname]|select|join(' ') }} — {{ r.address }}{% if r.city_zip %} {{ r.city_zip }}{% endif %} — {{ r.country }}</li>
         {% endfor %}
       </ul>
       <div class="form-panel" style="margin-top:1rem; padding:.6rem;">

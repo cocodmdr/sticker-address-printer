@@ -27,13 +27,13 @@ A web app to generate printable PDF address labels from CSV for Avery sticker sh
 ## CSV columns
 Required:
 - `name`
-- `surname`
 - `address`
 - `country`
 
 Optional:
 - `title`
 - `title_line_1`
+- `surname`
 - `city_zip`
 
 ## Run locally
