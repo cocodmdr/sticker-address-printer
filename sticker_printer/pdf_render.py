@@ -2,7 +2,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfgen import canvas
 
-from .layout import avery_template, label_positions, validate_template_spec
+from .layout import avery_template, label_positions, validate_template_spec, mm_to_pt
 
 
 def _name_line(row: dict) -> str:
@@ -41,28 +41,28 @@ def _sender_lines(sender_address: str) -> list[str]:
     return [ln.strip() for ln in (sender_address or "").splitlines() if ln.strip()]
 
 
-def _underline_sender(c, text: str, x: float, y: float, h: float, w: float, font_family: str):
-    y_line = y + h - 12
+def _underline_sender(c, text: str, x: float, y: float, h: float, w: float, font_family: str, left_margin_pt: float = 0, y_offset: float = 0):
+    y_line = y + h - 12 - y_offset
     width = pdfmetrics.stringWidth(text, font_family, 6.8)
     c.setLineWidth(0.6)
-    c.line(x + 6, y_line, min(x + 6 + width, x + w - 6), y_line)
+    c.line(x + 6 + left_margin_pt, y_line, min(x + 6 + left_margin_pt + width, x + w - 6), y_line)
 
 
-def _draw_sender(c, lines: list[str], x: float, y: float, w: float, h: float, font_family: str) -> float:
-    t = c.beginText(x + 6, y + h - 10)
+def _draw_sender(c, lines: list[str], x: float, y: float, w: float, h: float, font_family: str, left_margin_pt: float = 0, y_offset: float = 0) -> float:
+    t = c.beginText(x + 6 + left_margin_pt, y + h - 10 - y_offset)
     t.setFont(font_family, 6.8)
     t.setLeading(7.5)
     t.textLine(lines[0])
     if len(lines) > 1:
         t.textLine(lines[1])
     c.drawText(t)
-    _underline_sender(c, lines[0], x, y, h, w, font_family)
-    return y + h - 26
+    _underline_sender(c, lines[0], x, y, h, w, font_family, left_margin_pt, y_offset)
+    return y + h - 26 - y_offset
 
 
-def _content_start_y(c, sender_address: str, x: float, y: float, w: float, h: float, font_family: str) -> float:
+def _content_start_y(c, sender_address: str, x: float, y: float, w: float, h: float, font_family: str, left_margin_pt: float = 0, y_offset: float = 0) -> float:
     lines = _sender_lines(sender_address)
-    return _draw_sender(c, lines, x, y, w, h, font_family) if lines else (y + h - 14)
+    return _draw_sender(c, lines, x, y, w, h, font_family, left_margin_pt, y_offset) if lines else (y + h - 14 - y_offset)
 
 
 def _draw_address_lines(c, lines: list[str], x: float, start_y: float, font_family: str):
@@ -74,18 +74,24 @@ def _draw_address_lines(c, lines: list[str], x: float, start_y: float, font_fami
     c.drawText(t)
 
 
-def _draw_label(c, row: dict, box, sender_address: str, font_family: str):
+def _draw_label(c, row: dict, box, sender_address: str, font_family: str, top_margin_mm: float, left_margin_mm: float, show_boxes: bool = False):
     x, y, w, h = _label_frame(box)
-    start_y = _content_start_y(c, sender_address, x, y, w, h, font_family)
-    _draw_address_lines(c, _format_address(row), x, start_y, font_family)
+    left_pt = mm_to_pt(left_margin_mm)
+    top_pt = mm_to_pt(top_margin_mm)
+    start_y = _content_start_y(c, sender_address, x, y, w, h, font_family, left_pt, top_pt)
+    _draw_address_lines(c, _format_address(row), x + left_pt, start_y, font_family)
+    if show_boxes:
+        c.setStrokeColorRGB(0, 0, 0)
+        c.setLineWidth(0.5)
+        c.rect(x, y, w, h)
 
 
-def render_labels_pdf(addresses, template_spec_or_code, output_path, top_margin_mm=0, right_margin_mm=0, bottom_margin_mm=0, left_margin_mm=0, sender_address="", font_family="Helvetica"):
+def render_labels_pdf(addresses, template_spec_or_code, output_path, top_margin_mm=0, left_margin_mm=0, sender_address="", font_family="Helvetica", show_boxes=False):
     tpl = _resolve_template(template_spec_or_code)
     per_page = int(tpl["rows"]) * int(tpl["cols"])
     c = _new_canvas(output_path)
-    boxes = label_positions(tpl, top_margin_mm, right_margin_mm, bottom_margin_mm, left_margin_mm)
+    boxes = label_positions(tpl, 0, 0, 0, 0)
     for idx, row in enumerate(addresses):
         _start_new_page_if_needed(c, idx, per_page)
-        _draw_label(c, row, boxes[_page_slot(idx, per_page)], sender_address, font_family)
+        _draw_label(c, row, boxes[_page_slot(idx, per_page)], sender_address, font_family, top_margin_mm, left_margin_mm, show_boxes)
     c.save()

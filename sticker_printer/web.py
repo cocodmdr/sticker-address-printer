@@ -32,11 +32,10 @@ class ParsedForm:
     template_spec: dict | str
     template_name: str
     top: float
-    right: float
-    bottom: float
     left: float
     sender_address: str
     font_family: str
+    show_boxes: bool
 
 
 def _lang_from_request(req) -> str:
@@ -125,20 +124,24 @@ def _font_family(req) -> str:
     return (req.form.get("font_family", "Helvetica") or "Helvetica").strip()
 
 
+def _show_boxes(req) -> bool:
+    return req.form.get("show_boxes") == "1"
+
+
 def _extract_form(req) -> ParsedForm:
     csv_text = _extract_csv_text(req)
     template_spec, template_name = _parse_template(req)
-    return ParsedForm(parse_addresses(csv_text), csv_text, template_spec, template_name, _as_float(req, "top_margin"), _as_float(req, "right_margin"), _as_float(req, "bottom_margin"), _as_float(req, "left_margin"), _sender_address(req), _font_family(req))
+    return ParsedForm(parse_addresses(csv_text), csv_text, template_spec, template_name, _as_float(req, "top_margin"), _as_float(req, "left_margin"), _sender_address(req), _font_family(req), _show_boxes(req))
 
 
-def _make_pdf_buffer(form: ParsedForm) -> io.BytesIO:
+def _make_pdf_buffer(form: ParsedForm, show_boxes: bool = False) -> io.BytesIO:
     pdf_buffer = io.BytesIO()
-    render_labels_pdf(form.addresses, form.template_spec, pdf_buffer, form.top, form.right, form.bottom, form.left, sender_address=form.sender_address, font_family=form.font_family)
+    render_labels_pdf(form.addresses, form.template_spec, pdf_buffer, form.top, form.left, sender_address=form.sender_address, font_family=form.font_family, show_boxes=show_boxes)
     return pdf_buffer
 
 
 def _pdf_data_uri(form: ParsedForm) -> str:
-    return "data:application/pdf;base64," + base64.b64encode(_make_pdf_buffer(form).getvalue()).decode("ascii")
+    return "data:application/pdf;base64," + base64.b64encode(_make_pdf_buffer(form, form.show_boxes).getvalue()).decode("ascii")
 
 
 def _template_ctx(lang: str, ga_measurement_id: str) -> dict:
@@ -151,11 +154,10 @@ def _template_ctx(lang: str, ga_measurement_id: str) -> dict:
         "cached_template": session.get('template', 'L7160'),
         "cached_template_spec": session.get('template_spec'),
         "cached_top_margin": session.get('top_margin', 0.0),
-        "cached_right_margin": session.get('right_margin', 0.0),
-        "cached_bottom_margin": session.get('bottom_margin', 0.0),
         "cached_left_margin": session.get('left_margin', 0.0),
         "cached_sender_address": session.get('sender_address', ''),
         "cached_font_family": session.get('font_family', 'Helvetica'),
+        "cached_show_boxes": session.get('show_boxes', False),
     }
 
 
@@ -183,7 +185,7 @@ def _set_security_headers(resp):
 
 def _preview_context(form: ParsedForm, lang: str, ga_measurement_id: str) -> dict:
     base = _template_ctx(lang, ga_measurement_id)
-    base.update({"preview_rows": form.addresses[:12], "csv_text": form.csv_text, "template": form.template_name, "top_margin": form.top, "right_margin": form.right, "bottom_margin": form.bottom, "left_margin": form.left, "template_spec": form.template_spec if isinstance(form.template_spec, dict) else None, "tf": lambda k, **kw: tf(lang, k, **kw), "sender_address": form.sender_address, "font_family": form.font_family, "pdf_data_uri": _pdf_data_uri(form)})
+    base.update({"preview_rows": form.addresses[:12], "csv_text": form.csv_text, "template": form.template_name, "top_margin": form.top, "left_margin": form.left, "template_spec": form.template_spec if isinstance(form.template_spec, dict) else None, "tf": lambda k, **kw: tf(lang, k, **kw), "sender_address": form.sender_address, "font_family": form.font_family, "show_boxes": form.show_boxes, "pdf_data_uri": _pdf_data_uri(form)})
     return base
 
 
@@ -225,11 +227,10 @@ def create_app():
         session['template'] = form.template_name
         session['template_spec'] = form.template_spec
         session['top_margin'] = form.top
-        session['right_margin'] = form.right
-        session['bottom_margin'] = form.bottom
         session['left_margin'] = form.left
         session['sender_address'] = form.sender_address
         session['font_family'] = form.font_family
+        session['show_boxes'] = form.show_boxes
         return render_template("preview.html", **_preview_context(form, lang, ga_measurement_id))
 
     @app.post("/generate")
@@ -239,7 +240,7 @@ def create_app():
             form = _extract_form(request)
         except ValueError as e:
             return _render_index(lang, ga_measurement_id, str(e), 400)
-        pdf_buffer = _make_pdf_buffer(form)
+        pdf_buffer = _make_pdf_buffer(form, show_boxes=False)
         pdf_buffer.seek(0)
         return send_file(pdf_buffer, as_attachment=True, download_name=_pdf_download_name(form.template_name), mimetype="application/pdf")
 

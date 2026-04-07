@@ -37,6 +37,7 @@ TRANSLATIONS = {
         "origin_y": "Origin Y (mm)",
         "sender_address": "Sender address (optional)",
         "font_family": "Font family",
+        "show_label_outlines": "Show label outlines in preview",
 
         "preview_title": "Preview",
         "showing_labels": "Showing {count} label(s). Template:",
@@ -84,6 +85,7 @@ TRANSLATIONS = {
         "origin_y": "Origine Y (mm)",
         "sender_address": "Adresse expéditeur (optionnel)",
         "font_family": "Police de caractères",
+        "show_label_outlines": "Afficher les contours des étiquettes en aperçu",
 
         "preview_title": "Prévisualisation",
         "showing_labels": "Affichage de {count} étiquette(s). Modèle :",
@@ -131,8 +133,7 @@ TRANSLATIONS = {
         "origin_x": "Origen X (mm)",
         "origin_y": "Origen Y (mm)",
         "sender_address": "Dirección remitente (opcional)",
-        "font_family": "Tipografía",
-
+        "font_family": "Tipografía",        "show_label_outlines": "Mostrar contornos de etiquetas en vista previa",
         "preview_title": "Vista previa",
         "showing_labels": "Mostrando {count} etiqueta(s). Plantilla:",
         "generate_pdf": "Generar PDF",
@@ -179,6 +180,7 @@ TRANSLATIONS = {
         "origin_y": "Ursprung Y (mm)",
         "sender_address": "Absenderadresse (optional)",
         "font_family": "Schriftart",
+        "show_label_outlines": "Etikettenumrisse in Vorschau anzeigen",
 
         "preview_title": "Vorschau",
         "showing_labels": "Anzeige von {count} Etikett(en). Vorlage:",
@@ -226,6 +228,7 @@ TRANSLATIONS = {
         "origin_y": "Origine Y (mm)",
         "sender_address": "Indirizzo mittente (opzionale)",
         "font_family": "Carattere",
+        "show_label_outlines": "Mostra contorni etichette in anteprima",
 
         "preview_title": "Anteprima",
         "showing_labels": "Visualizzazione di {count} etichetta/e. Modello:",
@@ -273,6 +276,7 @@ TRANSLATIONS = {
         "origin_y": "Oorsprong Y (mm)",
         "sender_address": "Afzenderadres (optioneel)",
         "font_family": "Lettertype",
+        "show_label_outlines": "Toon labelranden in voorbeeld",
 
         "preview_title": "Voorbeeld",
         "showing_labels": "Weergave van {count} label(s). Sjabloon:",
